@@ -1,12 +1,22 @@
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
 import { useEffect, useState } from "react";
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { CarFront } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { db } from "../../lib/firebase";
-import { Car } from "../../types";
+import { theme } from "../../lib/theme";
+import type { Car } from "../../types";
+import { Screen } from "../../components/Screen";
+import { Eyebrow } from "../../components/Eyebrow";
+import { Heading } from "../../components/Heading";
+import { CarCard } from "../../components/CarCard";
+import { EmptyState } from "../../components/EmptyState";
+import { TAB_BAR_HEIGHT } from "../../components/AppTabBar";
 
 export default function AdminFleetScreen() {
+  const insets = useSafeAreaInsets();
   const [cars, setCars] = useState<Car[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(() => Boolean(db));
 
   useEffect(() => {
     if (!db) return;
@@ -19,64 +29,134 @@ export default function AdminFleetScreen() {
       setCars(data);
       setLoading(false);
     });
-
     return () => unsub();
   }, []);
 
+  const summary = cars.reduce(
+    (acc, c) => {
+      acc[c.status] = (acc[c.status] ?? 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Fleet Management</Text>
-      {loading ? (
-        <Text>Loading cars...</Text>
-      ) : (
-        <FlatList
-          data={cars}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <Text style={styles.carTitle}>{item.make} {item.model}</Text>
-              <Text style={styles.status}>Status: {item.status}</Text>
-              <Text style={styles.price}>${item.pricePerDay}/day</Text>
+    <Screen background="soft">
+      <FlatList
+        data={cars}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={{
+          paddingTop: insets.top + theme.spacing.xl,
+          paddingBottom: TAB_BAR_HEIGHT + theme.spacing["2xl"],
+          paddingHorizontal: theme.spacing.base,
+          gap: theme.spacing.base,
+        }}
+        ListHeaderComponent={
+          <View style={styles.header}>
+            <Eyebrow>Fleet management</Eyebrow>
+            <Heading accent="fleet">Manage the</Heading>
+
+            <View style={styles.summaryRow}>
+              <SummaryPill
+                label="Available"
+                value={summary.available ?? 0}
+                tone="success"
+              />
+              <SummaryPill
+                label="Rented"
+                value={summary.rented ?? 0}
+                tone="info"
+              />
+              <SummaryPill
+                label="Maintenance"
+                value={summary.maintenance ?? 0}
+                tone="warning"
+              />
             </View>
-          )}
-        />
-      )}
+          </View>
+        }
+        renderItem={({ item }) => <CarCard car={item} compact />}
+        ListEmptyComponent={
+          loading ? (
+            <View style={styles.loaderWrap}>
+              <ActivityIndicator color={theme.colors.primary} />
+              <Text style={styles.loaderText}>Loading fleet…</Text>
+            </View>
+          ) : (
+            <EmptyState
+              icon={CarFront}
+              title="No cars in the fleet"
+              body="Add your first car from the admin web console — it'll appear here instantly."
+            />
+          )
+        }
+      />
+    </Screen>
+  );
+}
+
+function SummaryPill({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number;
+  tone: "success" | "info" | "warning";
+}) {
+  const palette =
+    tone === "success"
+      ? { bg: theme.colors.successTint, fg: "#047857", dot: theme.colors.success }
+      : tone === "info"
+        ? { bg: theme.colors.infoTint, fg: "#1d4ed8", dot: theme.colors.info }
+        : { bg: theme.colors.warningTint, fg: "#a55a02", dot: theme.colors.warning };
+  return (
+    <View style={[styles.pill, { backgroundColor: palette.bg }]}>
+      <View style={[styles.pillDot, { backgroundColor: palette.dot }]} />
+      <Text style={[styles.pillValue, { color: palette.fg }]}>{value}</Text>
+      <Text style={[styles.pillLabel, { color: palette.fg }]}>{label}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: "#f5f5f5",
+  header: {
+    paddingBottom: theme.spacing.xl,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
+  summaryRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.lg,
   },
-  card: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: "#e0e0e0",
+  pill: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 6,
+    paddingHorizontal: theme.spacing.md,
+    borderRadius: theme.radii.full,
+    gap: 6,
   },
-  carTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 4,
+  pillDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
-  status: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 8,
-    textTransform: "capitalize",
+  pillValue: {
+    fontSize: theme.fontSize.sm,
+    fontWeight: theme.fontWeight.bold,
   },
-  price: {
-    fontSize: 16,
-    fontWeight: "bold",
-  }
+  pillLabel: {
+    fontSize: theme.fontSize.xs,
+    fontWeight: theme.fontWeight.semibold,
+  },
+  loaderWrap: {
+    paddingVertical: theme.spacing["3xl"],
+    alignItems: "center",
+    gap: theme.spacing.md,
+  },
+  loaderText: {
+    color: theme.colors.mutedForeground,
+    fontSize: theme.fontSize.sm,
+  },
 });

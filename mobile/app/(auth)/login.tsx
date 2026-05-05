@@ -1,19 +1,31 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from "../../lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useRouter } from "expo-router";
-import { ArrowLeft } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  Lock,
+  Mail,
+  ShieldCheck,
+} from "lucide-react-native";
+import { auth, db } from "../../lib/firebase";
+import { theme } from "../../lib/theme";
+import { Screen } from "../../components/Screen";
+import { Eyebrow } from "../../components/Eyebrow";
+import { Heading } from "../../components/Heading";
+import { PrimaryButton } from "../../components/PrimaryButton";
 
 /** Map cryptic Firebase auth codes to plain-English messages staff can act on. */
 function friendlyAuthError(code: string | undefined): string {
@@ -36,11 +48,14 @@ function friendlyAuthError(code: string | undefined): string {
 }
 
 export default function LoginScreen() {
+  const insets = useSafeAreaInsets();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const router = useRouter();
 
   const handleAdminLogin = async () => {
     if (!auth || !db) {
@@ -51,10 +66,8 @@ export default function LoginScreen() {
       setError("Please enter both email and password.");
       return;
     }
-
     setLoading(true);
     setError("");
-
     try {
       const cred = await signInWithEmailAndPassword(
         auth,
@@ -63,12 +76,10 @@ export default function LoginScreen() {
       );
       const adminDoc = await getDoc(doc(db, "admins", cred.user.uid));
       if (!adminDoc.exists()) {
-        // Sign them straight back out — non-admin accounts can't use this screen.
         await auth.signOut();
         setError("This account isn't authorized for admin access.");
         return;
       }
-      // Root layout handles the redirect to /(admin) once isAdmin flips to true.
     } catch (e: unknown) {
       const code =
         typeof e === "object" && e && "code" in e
@@ -85,121 +96,243 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-    >
-      <TouchableOpacity style={styles.backButton} onPress={handleCancel}>
-        <ArrowLeft size={20} color="#000" />
-        <Text style={styles.backText}>Back to fleet</Text>
-      </TouchableOpacity>
-
-      <View style={styles.formContainer}>
-        <Text style={styles.title}>Admin Sign In</Text>
-        <Text style={styles.subtitle}>
-          For Megusta Cars staff. Customers can browse without signing in.
-        </Text>
-
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor="#999"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="email-address"
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#999"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          autoCapitalize="none"
-        />
-
-        <TouchableOpacity
-          style={[styles.loginButton, loading && styles.loginButtonDisabled]}
-          onPress={handleAdminLogin}
-          disabled={loading}
+    <Screen ambient edgeToEdge>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.flex}
+      >
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[
+            styles.scroll,
+            {
+              paddingTop: insets.top + theme.spacing.sm,
+              paddingBottom:
+                (insets.bottom || theme.spacing.lg) + theme.spacing.lg,
+            },
+          ]}
+          keyboardShouldPersistTaps="handled"
         >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.loginButtonText}>Sign in</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+          <Pressable
+            onPress={handleCancel}
+            style={({ pressed }) => [
+              styles.backBtn,
+              pressed && { opacity: 0.7 },
+            ]}
+            accessibilityRole="button"
+          >
+            <ArrowLeft size={18} color={theme.colors.foreground} />
+            <Text style={styles.backText}>Back to fleet</Text>
+          </Pressable>
+
+          <View style={styles.intro}>
+            <View style={styles.badge}>
+              <ShieldCheck size={20} color={theme.colors.primary} strokeWidth={2} />
+            </View>
+            <Eyebrow>Staff only</Eyebrow>
+            <Heading accent="sign-in" size="2xl">
+              Admin
+            </Heading>
+            <Text style={styles.subtitle}>
+              For Megusta Cars staff. Customers can browse without signing in.
+            </Text>
+          </View>
+
+          <View style={styles.form}>
+            {error ? (
+              <View style={styles.errorBox}>
+                <AlertTriangle
+                  size={16}
+                  color={theme.colors.danger}
+                  strokeWidth={2.2}
+                />
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            ) : null}
+
+            <Field
+              label="Email"
+              icon={<Mail size={16} color={theme.colors.primary} strokeWidth={2} />}
+            >
+              <TextInput
+                value={email}
+                onChangeText={setEmail}
+                onFocus={() => setEmailFocused(true)}
+                onBlur={() => setEmailFocused(false)}
+                placeholder="staff@megusta.cars"
+                placeholderTextColor={theme.colors.mutedForeground}
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="email-address"
+                style={[styles.input, emailFocused && styles.inputFocused]}
+              />
+            </Field>
+
+            <Field
+              label="Password"
+              icon={<Lock size={16} color={theme.colors.primary} strokeWidth={2} />}
+            >
+              <TextInput
+                value={password}
+                onChangeText={setPassword}
+                onFocus={() => setPasswordFocused(true)}
+                onBlur={() => setPasswordFocused(false)}
+                placeholder="••••••••"
+                placeholderTextColor={theme.colors.mutedForeground}
+                secureTextEntry
+                autoCapitalize="none"
+                style={[styles.input, passwordFocused && styles.inputFocused]}
+              />
+            </Field>
+
+            <PrimaryButton
+              label="Sign in"
+              onPress={handleAdminLogin}
+              loading={loading}
+              style={{ marginTop: theme.spacing.sm }}
+              iconStart={
+                <ShieldCheck
+                  size={18}
+                  color={theme.colors.primaryForeground}
+                  strokeWidth={2}
+                />
+              }
+            />
+
+            <Text style={styles.footnote}>
+              Customers don&rsquo;t need an account · Anonymous browsing is
+              the default front door.
+            </Text>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </Screen>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
+function Field({
+  icon,
+  label,
+  children,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <View style={fieldStyles.wrap}>
+      <View style={fieldStyles.labelRow}>
+        {icon}
+        <Text style={fieldStyles.label}>{label}</Text>
+      </View>
+      {children}
+    </View>
+  );
+}
+
+const fieldStyles = StyleSheet.create({
+  wrap: {
+    gap: theme.spacing.sm,
   },
-  backButton: {
+  labelRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingTop: 56,
-    paddingHorizontal: 24,
-    paddingBottom: 8,
+    gap: 6,
+  },
+  label: {
+    fontSize: theme.fontSize.xs,
+    fontWeight: theme.fontWeight.bold,
+    textTransform: "uppercase",
+    letterSpacing: 1.6,
+    color: theme.colors.mutedForeground,
+  },
+});
+
+const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
+  scroll: {
+    flexGrow: 1,
+    paddingHorizontal: theme.spacing.lg,
+  },
+  backBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    alignSelf: "flex-start",
+    paddingVertical: theme.spacing.sm,
   },
   backText: {
-    marginLeft: 8,
-    fontSize: 15,
-    color: "#000",
+    fontSize: theme.fontSize.sm,
+    fontWeight: theme.fontWeight.semibold,
+    color: theme.colors.foreground,
   },
-  formContainer: {
-    flex: 1,
+  intro: {
+    marginTop: theme.spacing.xl,
+    gap: theme.spacing.md,
+  },
+  badge: {
+    width: 56,
+    height: 56,
+    borderRadius: theme.radii.xl,
+    backgroundColor: theme.colors.primaryTint,
+    alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 24,
-    paddingBottom: 40,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: "rgba(220, 74, 19, 0.18)",
   },
   subtitle: {
-    fontSize: 15,
-    color: "#666",
-    marginBottom: 24,
+    fontSize: theme.fontSize.md,
+    lineHeight: 22,
+    color: theme.colors.mutedForeground,
   },
-  input: {
-    backgroundColor: "#fff",
-    height: 50,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    marginBottom: 12,
+  form: {
+    marginTop: theme.spacing.xl,
+    backgroundColor: theme.colors.card,
+    borderRadius: theme.radii["2xl"],
     borderWidth: 1,
-    borderColor: "#e0e0e0",
-    color: "#000",
+    borderColor: theme.colors.border,
+    padding: theme.spacing.lg,
+    gap: theme.spacing.base,
+    ...theme.shadows.md,
   },
-  loginButton: {
-    backgroundColor: "#000",
-    height: 50,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 12,
-  },
-  loginButtonDisabled: {
-    opacity: 0.6,
-  },
-  loginButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
+  errorBox: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: theme.spacing.sm,
+    padding: theme.spacing.md,
+    borderRadius: theme.radii.lg,
+    backgroundColor: theme.colors.dangerTint,
+    borderWidth: 1,
+    borderColor: "rgba(220, 38, 38, 0.18)",
   },
   errorText: {
-    color: "#d32f2f",
-    marginBottom: 12,
+    flex: 1,
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.danger,
+    fontWeight: theme.fontWeight.medium,
+    lineHeight: 18,
+  },
+  input: {
+    height: 52,
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.radii.lg,
+    paddingHorizontal: theme.spacing.base,
+    fontSize: theme.fontSize.md,
+    color: theme.colors.foreground,
+    borderWidth: 1.5,
+    borderColor: theme.colors.borderStrong,
+  },
+  inputFocused: {
+    borderColor: theme.colors.primary,
+    backgroundColor: theme.colors.card,
+  },
+  footnote: {
+    fontSize: theme.fontSize.xs,
+    color: theme.colors.mutedForeground,
+    textAlign: "center",
+    lineHeight: 18,
+    marginTop: theme.spacing.xs,
   },
 });

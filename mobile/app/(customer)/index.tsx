@@ -1,122 +1,149 @@
-import { View, Text, StyleSheet, FlatList, Image } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { useEffect, useState } from "react";
-import { useAuth } from "../../lib/auth";
-import { collection, onSnapshot, query, orderBy, where } from "firebase/firestore";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { CarFront, Sparkles } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { db } from "../../lib/firebase";
-import { Car } from "../../types";
+import { theme } from "../../lib/theme";
+import { useT } from "../../lib/i18n/use-t";
+import type { Car } from "../../types";
+import { Screen } from "../../components/Screen";
+import { Eyebrow } from "../../components/Eyebrow";
+import { Heading } from "../../components/Heading";
+import { CarCard } from "../../components/CarCard";
+import { EmptyState } from "../../components/EmptyState";
+import { TAB_BAR_HEIGHT } from "../../components/AppTabBar";
 
 export default function FleetScreen() {
-  const { user } = useAuth();
+  const insets = useSafeAreaInsets();
+  const { t } = useT();
   const [cars, setCars] = useState<Car[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(() => Boolean(db));
 
   useEffect(() => {
     if (!db) return;
-    // Customers only see available cars
-    const q = query(
-      collection(db, "cars"), 
-      where("status", "==", "available"),
-      orderBy("make")
-    );
-    
+    // Filter server-side; sort client-side to avoid needing a composite index.
+    const q = query(collection(db, "cars"), where("status", "==", "available"));
     const unsub = onSnapshot(q, (snap) => {
-      const data = snap.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Car[];
+      const data = snap.docs
+        .map((doc) => ({ id: doc.id, ...doc.data() }) as Car)
+        .sort((a, b) => a.make.localeCompare(b.make));
       setCars(data);
       setLoading(false);
     });
-
     return () => unsub();
   }, []);
 
+  const lowestPrice = cars.length
+    ? Math.min(...cars.map((c) => c.pricePerDay))
+    : 0;
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Available Cars</Text>
-      
-      {loading ? (
-        <Text>Loading cars...</Text>
-      ) : (
-        <FlatList
-          data={cars}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              {item.imageUrl ? (
-                <Image 
-                  source={{ uri: item.imageUrl }} 
-                  style={styles.image}
-                  resizeMode="cover"
-                />
-              ) : (
-                <View style={[styles.image, styles.placeholderImage]}>
-                  <Text style={styles.placeholderText}>No Image</Text>
-                </View>
-              )}
-              
-              <View style={styles.details}>
-                <Text style={styles.carTitle}>{item.make} {item.model}</Text>
-                <Text style={styles.infoText}>
-                  {item.year} • {item.transmission} • {item.fuel}
-                </Text>
-                <Text style={styles.price}>${item.pricePerDay} / day</Text>
+    <Screen ambient>
+      <FlatList
+        data={cars}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={{
+          paddingTop: insets.top + theme.spacing.xl,
+          paddingBottom: TAB_BAR_HEIGHT + theme.spacing["2xl"],
+          paddingHorizontal: theme.spacing.base,
+          gap: theme.spacing.base,
+        }}
+        ListHeaderComponent={
+          <View style={styles.header}>
+            <Eyebrow>{t.fleet.eyebrow}</Eyebrow>
+            <Heading accent={t.fleet.headingAccent}>
+              {t.fleet.headingBody}
+            </Heading>
+            <Text style={styles.subtitle}>{t.fleet.subtitle}</Text>
+
+            <View style={styles.statsRow}>
+              <View style={styles.statPill}>
+                <Sparkles size={14} color={theme.colors.primary} />
+                <Text style={styles.statValue}>{cars.length}</Text>
+                <Text style={styles.statLabel}>{t.fleet.available}</Text>
               </View>
+              {lowestPrice > 0 ? (
+                <View style={styles.statPill}>
+                  <Text style={styles.statValue}>
+                    {t.fleet.priceFromLabel} ${lowestPrice}
+                  </Text>
+                  <Text style={styles.statLabel}>{t.fleet.priceUnit}</Text>
+                </View>
+              ) : null}
             </View>
-          )}
-        />
-      )}
-    </View>
+          </View>
+        }
+        renderItem={({ item }) => <CarCard car={item} />}
+        ListEmptyComponent={
+          loading ? (
+            <View style={styles.loaderWrap}>
+              <ActivityIndicator color={theme.colors.primary} />
+              <Text style={styles.loaderText}>{t.fleet.loading}</Text>
+            </View>
+          ) : (
+            <EmptyState
+              icon={CarFront}
+              title={t.fleet.emptyTitle}
+              body={t.fleet.emptyBody}
+            />
+          )
+        }
+      />
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: "#f5f5f5",
+  header: {
+    paddingBottom: theme.spacing.xl,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
+  subtitle: {
+    marginTop: theme.spacing.md,
+    fontSize: theme.fontSize.md,
+    lineHeight: 22,
+    color: theme.colors.mutedForeground,
   },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    marginBottom: 16,
-    overflow: "hidden",
+  statsRow: {
+    marginTop: theme.spacing.lg,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: theme.spacing.sm,
+  },
+  statPill: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: theme.spacing.base,
+    backgroundColor: theme.colors.card,
+    borderRadius: theme.radii.full,
     borderWidth: 1,
-    borderColor: "#e0e0e0",
+    borderColor: theme.colors.border,
+    ...theme.shadows.sm,
   },
-  image: {
-    width: "100%",
-    height: 200,
+  statValue: {
+    fontSize: theme.fontSize.sm,
+    fontWeight: theme.fontWeight.bold,
+    color: theme.colors.foreground,
   },
-  placeholderImage: {
-    backgroundColor: "#e0e0e0",
-    justifyContent: "center",
+  statLabel: {
+    fontSize: theme.fontSize.xs,
+    color: theme.colors.mutedForeground,
+  },
+  loaderWrap: {
+    paddingVertical: theme.spacing["3xl"],
     alignItems: "center",
+    gap: theme.spacing.md,
   },
-  placeholderText: {
-    color: "#666",
+  loaderText: {
+    color: theme.colors.mutedForeground,
+    fontSize: theme.fontSize.sm,
   },
-  details: {
-    padding: 16,
-  },
-  carTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  infoText: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 8,
-  },
-  price: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#000",
-  }
 });

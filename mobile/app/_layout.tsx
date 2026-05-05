@@ -1,8 +1,10 @@
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
-import { AuthProvider, useAuth } from "../lib/auth";
-import { ActivityIndicator, View } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { AuthProvider, useAuth } from "../lib/auth";
+import { LocaleProvider, useLocaleContext } from "../lib/i18n/store";
+import { BrandLoader } from "../components/BrandLoader";
 
 /**
  * Drives navigation based on auth state. Rules:
@@ -14,6 +16,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
  */
 function RootNavigation() {
   const { isAdmin, loading } = useAuth();
+  const { hydrated, switching } = useLocaleContext();
   const segments = useSegments();
   const router = useRouter();
 
@@ -34,16 +37,12 @@ function RootNavigation() {
     }
   }, [isAdmin, loading, segments, router]);
 
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#000" />
-      </View>
-    );
+  if (loading || !hydrated || switching) {
+    return <BrandLoader />;
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "transparent" } }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="(customer)" />
       <Stack.Screen name="(admin)" />
@@ -55,9 +54,12 @@ function RootNavigation() {
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <RootNavigation />
-      </AuthProvider>
+      <StatusBar style="dark" translucent backgroundColor="transparent" />
+      <LocaleProvider>
+        <AuthProvider>
+          <RootNavigation />
+        </AuthProvider>
+      </LocaleProvider>
     </SafeAreaProvider>
   );
 }
