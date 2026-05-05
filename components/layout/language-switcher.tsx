@@ -46,16 +46,16 @@ export function LanguageSwitcher({
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex h-11 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-sm font-semibold text-foreground shadow-sm transition-transform hover:-translate-y-0.5"
+        className="inline-flex h-11 items-center gap-1.5 rounded-full border border-border-strong bg-card/80 px-3 text-sm font-semibold text-foreground shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:border-foreground/20"
       >
-        <Globe className="h-4 w-4" aria-hidden />
+        <Globe className="h-4 w-4 text-primary" aria-hidden />
         <span className="tabular-nums">{current.short}</span>
       </button>
 
       {open ? (
         <ul
           role="menu"
-          className="absolute end-0 top-full z-50 mt-2 w-44 overflow-hidden rounded-2xl border border-border bg-card p-1 shadow-xl"
+          className="surface-card-elevated absolute end-0 top-full z-50 mt-2 w-48 overflow-hidden p-1 animate-fade-in"
         >
           {LOCALES.map((code) => {
             const meta = LOCALE_META[code];
@@ -74,15 +74,17 @@ export function LanguageSwitcher({
                   dir={meta.dir}
                   className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-start text-sm transition-colors ${
                     active
-                      ? "bg-primary/10 text-primary"
-                      : "text-foreground hover:bg-muted"
+                      ? "bg-gradient-to-br from-primary/10 to-accent/10 text-primary ring-1 ring-primary/15"
+                      : "text-foreground hover:bg-muted/60"
                   }`}
                 >
                   <span className="font-medium">{meta.nativeName}</span>
                   {active ? (
-                    <Check className="h-4 w-4" aria-hidden />
+                    <Check className="h-4 w-4" aria-hidden strokeWidth={3} />
                   ) : (
-                    <span className="text-xs text-muted-foreground">{meta.short}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {meta.short}
+                    </span>
                   )}
                 </button>
               </li>

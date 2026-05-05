@@ -16,20 +16,28 @@ export function StepIndicator({ steps, current }: StepIndicatorProps) {
         return (
           <li key={label} className="flex flex-1 items-center gap-2 sm:gap-3">
             <span
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold transition-colors ${
+              className={`relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold transition-all ${
                 completed
-                  ? "bg-primary text-primary-foreground"
+                  ? "bg-gradient-to-br from-primary to-primary-soft text-primary-foreground shadow-sm shadow-primary/30"
                   : active
-                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
-                    : "bg-muted text-muted-foreground"
+                    ? "bg-gradient-to-br from-primary to-primary-soft text-primary-foreground shadow-md shadow-primary/30 ring-2 ring-primary/30 ring-offset-2 ring-offset-background"
+                    : "border border-border-strong bg-card text-muted-foreground"
               }`}
               aria-current={active ? "step" : undefined}
             >
-              {completed ? <Check className="h-4 w-4" aria-hidden /> : step}
+              {completed ? (
+                <Check className="h-4 w-4" aria-hidden strokeWidth={3} />
+              ) : (
+                step
+              )}
             </span>
             <span
-              className={`hidden text-sm font-medium sm:inline ${
-                active ? "text-foreground" : "text-muted-foreground"
+              className={`hidden text-sm font-semibold sm:inline ${
+                active
+                  ? "text-foreground"
+                  : completed
+                    ? "text-foreground/80"
+                    : "text-muted-foreground"
               }`}
             >
               {label}
@@ -37,8 +45,10 @@ export function StepIndicator({ steps, current }: StepIndicatorProps) {
             {step < steps.length ? (
               <span
                 aria-hidden
-                className={`h-px flex-1 ${
-                  completed ? "bg-primary" : "bg-border"
+                className={`h-0.5 flex-1 rounded-full transition-colors ${
+                  completed
+                    ? "bg-gradient-to-r from-primary to-primary-soft"
+                    : "bg-border"
                 }`}
               />
             ) : null}

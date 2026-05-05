@@ -11,15 +11,24 @@ export function CheckoutHeader() {
     t.steps.items[2].title,
   ] as const;
 
+  // Split title around the trailing emoji (if present) for the italic accent.
+  const rawTitle = t.checkout.title;
+  const emojiMatch = rawTitle.match(/[\p{Extended_Pictographic}]+/u);
+  const accent = emojiMatch?.[0] ?? "";
+  const titleBody = accent ? rawTitle.replace(accent, "").trim() : rawTitle;
+
   return (
     <>
       <StepIndicator steps={steps} current={3} />
-      <div className="mt-8 mb-8 animate-fade-up">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-          {t.checkout.stepEyebrow}
-        </p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-          {t.checkout.title}
+      <div className="mt-8 mb-10 animate-fade-up">
+        <p className="eyebrow">{t.checkout.stepEyebrow}</p>
+        <h1 className="mt-4 text-[clamp(2rem,4.4vw,3.25rem)] font-semibold leading-[1.04] tracking-tight text-foreground">
+          {titleBody}
+          {accent ? (
+            <span className="ms-2 font-display italic font-normal">
+              {accent}
+            </span>
+          ) : null}
         </h1>
       </div>
     </>

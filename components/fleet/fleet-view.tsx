@@ -36,10 +36,10 @@ export function FleetView() {
   const searchParamsString = passthrough.toString();
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
       <FleetHeader count={filteredCars.length} />
 
-      <div className="mb-10 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6">
+      <div className="surface-card mb-12 p-5 sm:p-7">
         <FleetFilterBar />
       </div>
 
@@ -48,14 +48,14 @@ export function FleetView() {
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="h-80 animate-pulse rounded-3xl border border-border bg-card"
+              className="h-96 animate-pulse rounded-3xl border border-border bg-card"
             />
           ))}
         </div>
       ) : filteredCars.length === 0 ? (
         <FleetEmptyState />
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 stagger sm:grid-cols-2 lg:grid-cols-3">
           {filteredCars.map((car) => (
             <CarCard
               key={car.id}

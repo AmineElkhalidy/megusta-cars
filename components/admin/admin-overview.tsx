@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ClipboardList, Car, DollarSign, ShieldCheck } from "lucide-react";
+import { ClipboardList, Car, DollarSign, ShieldCheck, ArrowRight } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/booking-utils";
 import { StatCard } from "@/components/admin/stat-card";
 import { StatusBadge } from "@/components/bookings/status-badge";
@@ -14,7 +14,7 @@ export function AdminOverview() {
 
   if (bookingsLoading || carsLoading) {
     return (
-      <div className="rounded-2xl border border-border bg-card p-8 text-sm text-muted-foreground">
+      <div className="surface-card p-8 text-sm text-muted-foreground">
         Loading dashboard…
       </div>
     );
@@ -29,7 +29,7 @@ export function AdminOverview() {
 
   return (
     <div className="space-y-8">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 stagger sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Total bookings"
           value={String(bookings.length)}
@@ -56,20 +56,24 @@ export function AdminOverview() {
         />
       </div>
 
-      <section className="rounded-2xl border border-border bg-card">
-        <div className="flex items-center justify-between border-b border-border px-5 py-4">
-          <h2 className="text-base font-semibold text-foreground">
+      <section className="surface-card overflow-hidden">
+        <div className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-6">
+          <h2 className="text-base font-semibold tracking-tight text-foreground">
             Recent reservations
           </h2>
           <Link
             href="/admin/bookings"
-            className="text-sm font-medium text-primary hover:underline"
+            className="group inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors hover:text-primary-soft"
           >
             View all
+            <ArrowRight
+              className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1 rtl-flip"
+              aria-hidden
+            />
           </Link>
         </div>
         {recent.length === 0 ? (
-          <p className="px-5 py-8 text-center text-sm text-muted-foreground">
+          <p className="px-5 py-10 text-center text-sm text-muted-foreground">
             No reservations yet — incoming bookings will appear here.
           </p>
         ) : (
@@ -77,18 +81,21 @@ export function AdminOverview() {
             {recent.map((b) => (
               <li
                 key={b.id}
-                className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 text-sm"
+                className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 text-sm transition-colors hover:bg-muted/40 sm:px-6"
               >
-                <div>
-                  <p className="font-medium text-foreground">
-                    {b.customerName || "Guest"} · {b.carLabel}
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-foreground">
+                    {b.customerName || "Guest"} ·{" "}
+                    <span className="font-display italic font-normal">
+                      {b.carLabel}
+                    </span>
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="mt-0.5 text-xs text-muted-foreground">
                     {formatDate(b.startDate)} → {formatDate(b.endDate)}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="font-medium text-foreground">
+                  <span className="font-semibold tabular-nums text-foreground">
                     {formatCurrency(b.totalAmount)}
                   </span>
                   <StatusBadge status={b.status} />

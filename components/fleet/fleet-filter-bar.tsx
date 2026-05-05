@@ -12,7 +12,11 @@ import { useT } from "@/lib/i18n/use-t";
 const GROUPS = [
   { key: "type", emoji: "🚗", options: ["Sedan", "SUV", "Coupe", "Hatchback"] },
   { key: "transmission", emoji: "⚙️", options: ["Automatic", "Manual"] },
-  { key: "fuel", emoji: "⛽", options: ["Gasoline", "Diesel", "Electric", "Hybrid"] },
+  {
+    key: "fuel",
+    emoji: "⛽",
+    options: ["Gasoline", "Diesel", "Electric", "Hybrid"],
+  },
 ] as const;
 
 export function FleetFilterBar() {
@@ -47,7 +51,7 @@ export function FleetFilterBar() {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {GROUPS.map((group) => {
         const selected = params.getAll(group.key);
         const groupLabel =
@@ -65,10 +69,8 @@ export function FleetFilterBar() {
 
         return (
           <div key={group.key}>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              <span className="me-1.5" aria-hidden>
-                {group.emoji}
-              </span>
+            <p className="mb-2.5 inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              <span aria-hidden>{group.emoji}</span>
               {groupLabel}
             </p>
             <div className="flex flex-wrap gap-2">
@@ -82,8 +84,8 @@ export function FleetFilterBar() {
                     aria-pressed={active}
                     className={`inline-flex h-10 items-center justify-center rounded-full px-4 text-sm font-semibold transition-all ${
                       active
-                        ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
-                        : "border border-border bg-card text-foreground hover:-translate-y-0.5 hover:shadow-sm"
+                        ? "bg-gradient-to-br from-primary to-primary-soft text-primary-foreground shadow-md shadow-primary/30 ring-1 ring-primary/30"
+                        : "border border-border-strong bg-card text-foreground hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-sm"
                     }`}
                   >
                     {optionLabels[option] ?? option}
@@ -99,7 +101,7 @@ export function FleetFilterBar() {
         <button
           type="button"
           onClick={clearAll}
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex items-center gap-1.5 rounded-full border border-transparent px-2 py-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           <X className="h-3.5 w-3.5" aria-hidden />
           {t.cars.clearFilters(activeCount)}

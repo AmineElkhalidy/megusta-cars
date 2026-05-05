@@ -29,13 +29,18 @@ export function CheckoutSummary({
   const typeLabel = t.cars.options.type[car.type] ?? car.type;
 
   return (
-    <div className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-7">
-      <h2 className="text-lg font-semibold text-foreground">
+    <div className="surface-card-elevated relative overflow-hidden p-5 sm:p-6 lg:p-7">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
+      />
+
+      <h2 className="text-lg font-semibold tracking-tight text-foreground">
         {t.checkout.summaryTitle}
       </h2>
 
       <div className="mt-5 flex items-center gap-4 border-b border-border pb-5">
-        <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-2xl bg-muted">
+        <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-2xl bg-muted ring-1 ring-border">
           <Image
             src={car.imageUrl}
             alt={`${car.make} ${car.model}`}
@@ -46,17 +51,26 @@ export function CheckoutSummary({
         </div>
         <div>
           <h3 className="font-semibold text-foreground">
-            {car.make} {car.model}
+            {car.make}{" "}
+            <span className="font-display italic font-normal">
+              {car.model}
+            </span>
           </h3>
-          <p className="text-sm text-muted-foreground">{typeLabel} · {car.year}</p>
+          <p className="text-sm text-muted-foreground">
+            {typeLabel} · {car.year}
+          </p>
         </div>
       </div>
 
-      <dl className="mt-5 space-y-4 text-sm">
+      <dl className="mt-5 space-y-5 text-sm">
         <div className="flex items-start gap-3">
-          <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15">
+            <CalendarDays className="h-4 w-4" aria-hidden />
+          </span>
           <div>
-            <dt className="font-semibold text-foreground">{t.checkout.datesLabel}</dt>
+            <dt className="font-semibold text-foreground">
+              {t.checkout.datesLabel}
+            </dt>
             <dd className="text-muted-foreground">
               {formatDate(from)} → {formatDate(to)}
             </dd>
@@ -66,7 +80,9 @@ export function CheckoutSummary({
           </div>
         </div>
         <div className="flex items-start gap-3">
-          <MapPinned className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15">
+            <MapPinned className="h-4 w-4" aria-hidden />
+          </span>
           <div>
             <dt className="font-semibold text-foreground">
               {t.checkout.locationsLabel}
@@ -81,12 +97,12 @@ export function CheckoutSummary({
         </div>
       </dl>
 
-      <div className="mt-6 rounded-2xl bg-muted/70 p-4">
+      <div className="mt-6 rounded-2xl border border-border bg-muted/60 p-4">
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">
             {formatCurrency(car.pricePerDay)} × {t.checkout.dayCount(days)}
           </span>
-          <span className="font-medium text-foreground">
+          <span className="font-medium tabular-nums text-foreground">
             {formatCurrency(total)}
           </span>
         </div>
@@ -94,15 +110,18 @@ export function CheckoutSummary({
           <span className="text-base font-semibold text-foreground">
             {t.checkout.payLabel}
           </span>
-          <span className="text-2xl font-semibold tracking-tight text-foreground">
+          <span className="text-2xl font-semibold tracking-tight tabular-nums text-foreground">
             {formatCurrency(total)}
           </span>
         </div>
       </div>
 
-      <div className="mt-5 flex items-start gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm text-emerald-700 dark:text-emerald-300">
-        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-        <p>{t.checkout.noCardBanner}</p>
+      <div className="mt-5 flex items-start gap-3 rounded-2xl border border-success/20 bg-success/10 p-4 text-sm">
+        <CheckCircle2
+          className="mt-0.5 h-4 w-4 shrink-0 text-success"
+          aria-hidden
+        />
+        <p className="text-foreground/85">{t.checkout.noCardBanner}</p>
       </div>
     </div>
   );

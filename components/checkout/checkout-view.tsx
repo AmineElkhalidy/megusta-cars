@@ -48,10 +48,7 @@ export function CheckoutView({
         <p className="mt-2 text-sm text-muted-foreground">
           This car is no longer available.
         </p>
-        <Link
-          href="/fleet"
-          className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground"
-        >
+        <Link href="/fleet" className="btn-primary mt-6 h-12 px-6 text-sm">
           {t.dashboard.emptyCta}
         </Link>
       </div>
@@ -69,11 +66,11 @@ export function CheckoutView({
   const total = car.pricePerDay * days;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
       <CheckoutHeader />
 
       <div className="grid gap-8 lg:grid-cols-12 lg:items-start">
-        <div className="lg:col-span-7">
+        <div className="lg:col-span-7 animate-fade-up">
           <CheckoutForm
             carId={car.id}
             carLabel={`${car.make} ${car.model}`}
@@ -86,7 +83,7 @@ export function CheckoutView({
           />
         </div>
 
-        <div className="lg:col-span-5 lg:sticky lg:top-24">
+        <div className="lg:col-span-5 lg:sticky lg:top-24 animate-fade-up [animation-delay:0.08s]">
           <CheckoutSummary
             car={car}
             pickup={pickup}

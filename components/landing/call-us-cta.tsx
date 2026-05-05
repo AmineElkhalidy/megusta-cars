@@ -7,21 +7,40 @@ import { useT } from "@/lib/i18n/use-t";
 export function CallUsCta() {
   const { t } = useT();
   return (
-    <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 lg:px-8">
-      <div className="relative overflow-hidden rounded-[2rem] border border-border bg-gradient-to-br from-primary to-accent p-8 text-primary-foreground shadow-xl shadow-primary/20 sm:p-12">
+    <section className="mx-auto max-w-6xl px-4 pb-24 sm:px-6 lg:px-8">
+      <div className="relative isolate overflow-hidden rounded-[2.5rem] bg-ink p-8 shadow-2xl shadow-foreground/15 ring-1 ring-foreground/5 sm:p-12 lg:p-14">
+        {/* Halos */}
         <div
           aria-hidden
-          className="absolute -end-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"
+          className="pointer-events-none absolute -end-16 -top-20 h-72 w-72 rounded-full bg-primary/35 blur-3xl"
         />
-        <div className="relative grid items-center gap-8 md:grid-cols-[1.3fr_1fr]">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -start-12 -bottom-16 h-72 w-72 rounded-full bg-accent/25 blur-3xl"
+        />
+        {/* Faint grid texture */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.06]"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+          }}
+        />
+
+        <div className="relative grid items-center gap-10 md:grid-cols-[1.4fr_1fr]">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] opacity-90">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-accent-soft">
               {t.cta.eyebrow}
             </p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-              {t.cta.title}
+            <h2 className="mt-4 text-[clamp(2rem,4vw,3rem)] font-semibold leading-[1.04] tracking-tight text-ink-foreground">
+              {t.cta.title.replace("☎️", "").trim()}{" "}
+              <span className="font-display italic font-normal text-accent-soft">
+                ☎️
+              </span>
             </h2>
-            <p className="mt-3 max-w-md text-[15px] leading-relaxed opacity-90">
+            <p className="mt-4 max-w-md text-[16px] leading-relaxed text-ink-muted">
               {t.cta.subtitle}
             </p>
           </div>
@@ -29,18 +48,25 @@ export function CallUsCta() {
           <div className="flex flex-col gap-3 sm:flex-row md:flex-col">
             <a
               href={telLink()}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-white px-6 py-4 text-base font-semibold text-primary shadow-md transition-transform hover:-translate-y-0.5"
+              className="group inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-white px-6 py-4 text-base font-semibold text-foreground shadow-lg shadow-black/20 transition-transform hover:-translate-y-0.5"
             >
-              <Phone className="h-5 w-5" aria-hidden />
-              {t.cta.call} {site.phoneDisplay}
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/12 text-primary">
+                <Phone className="h-4 w-4" aria-hidden />
+              </span>
+              <span>
+                {t.cta.call}{" "}
+                <span className="tabular-nums">{site.phoneDisplay}</span>
+              </span>
             </a>
             <a
               href={whatsappLink()}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-black/20 px-6 py-4 text-base font-semibold text-white ring-1 ring-white/20 backdrop-blur transition-transform hover:-translate-y-0.5"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-white/8 px-6 py-4 text-base font-semibold text-ink-foreground ring-1 ring-white/15 backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white/12"
             >
-              <MessageCircle className="h-5 w-5" aria-hidden />
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300">
+                <MessageCircle className="h-4 w-4" aria-hidden />
+              </span>
               {t.cta.whatsapp}
             </a>
           </div>

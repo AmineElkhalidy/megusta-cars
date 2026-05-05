@@ -40,13 +40,17 @@ export function CarSpecs({ car }: { car: Car }) {
       {specs.map((spec) => (
         <li
           key={spec.label}
-          className="rounded-2xl border border-border bg-card p-4"
+          className="surface-card group p-4 transition-all hover:-translate-y-0.5 hover:border-border-strong"
         >
-          <spec.icon className="h-5 w-5 text-muted-foreground" aria-hidden />
-          <p className="mt-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-accent/12 text-primary ring-1 ring-primary/15 transition-transform group-hover:-rotate-6">
+            <spec.icon className="h-4 w-4" aria-hidden />
+          </span>
+          <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             {spec.label}
           </p>
-          <p className="mt-1 text-sm font-medium text-foreground">{spec.value}</p>
+          <p className="mt-1 text-sm font-semibold text-foreground">
+            {spec.value}
+          </p>
         </li>
       ))}
     </ul>

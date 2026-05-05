@@ -62,7 +62,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     return (
       <div className="mx-auto flex min-h-[60vh] max-w-md items-center justify-center px-4">
         <div className="flex flex-col items-center text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-700 dark:text-amber-300">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-700 ring-1 ring-amber-500/20 dark:text-amber-300">
             <ShieldAlert className="h-6 w-6" aria-hidden />
           </div>
           <h2 className="mt-4 text-lg font-semibold text-foreground">
@@ -71,10 +71,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <p className="mt-2 text-sm text-muted-foreground">
             Redirecting you to the sign-in page…
           </p>
-          <Link
-            href="/admin/login"
-            className="mt-5 inline-flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground"
-          >
+          <Link href="/admin/login" className="btn-primary mt-5 h-10 px-5 text-sm">
             Go to sign-in
           </Link>
         </div>
@@ -88,16 +85,17 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 function AdminChrome({ children }: { children: React.ReactNode }) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-          Agency control panel
-        </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
-          Admin
+      <div className="mb-10 animate-fade-up">
+        <p className="eyebrow">Agency control panel</p>
+        <h1 className="mt-3 text-[clamp(2rem,4vw,3rem)] font-semibold leading-[1.04] tracking-tight text-foreground">
+          Admin{" "}
+          <span className="font-display italic font-normal text-flame">
+            console
+          </span>
         </h1>
       </div>
 
-      <div className="grid gap-8 md:grid-cols-[220px_1fr]">
+      <div className="grid gap-8 md:grid-cols-[230px_1fr]">
         <AdminSidebar />
         <div className="min-w-0">{children}</div>
       </div>

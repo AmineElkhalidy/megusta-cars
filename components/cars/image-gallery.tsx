@@ -15,7 +15,7 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
 
   return (
     <div className="space-y-4">
-      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-muted">
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl bg-muted shadow-xl shadow-foreground/5 ring-1 ring-border">
         <Image
           src={safeImages[activeIndex]}
           alt={alt}
@@ -24,6 +24,8 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
           className="object-cover"
           sizes="(max-width: 1024px) 100vw, 60vw"
         />
+        {/* Top vignette for chip readability */}
+        <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/20 to-transparent" />
       </div>
 
       {safeImages.length > 1 ? (
@@ -35,10 +37,10 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
               onClick={() => setActiveIndex(idx)}
               aria-label={`Show image ${idx + 1}`}
               aria-pressed={activeIndex === idx}
-              className={`relative aspect-[4/3] overflow-hidden rounded-xl bg-muted transition-all ${
+              className={`relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted transition-all ${
                 activeIndex === idx
                   ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
-                  : "opacity-70 hover:opacity-100"
+                  : "opacity-70 hover:opacity-100 hover:-translate-y-0.5"
               }`}
             >
               <Image

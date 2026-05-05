@@ -16,6 +16,11 @@ type QuickBookingWidgetProps = {
   defaults: QuickBookingDefaults;
 };
 
+/**
+ * Premium-feeling search bar — fields share one rounded surface with thin
+ * dividers. The submit button is rendered inside the bar on desktop and
+ * full-width on mobile so it always feels like the primary action.
+ */
 export function QuickBookingWidget({ defaults }: QuickBookingWidgetProps) {
   const router = useRouter();
   const { t } = useT();
@@ -35,20 +40,24 @@ export function QuickBookingWidget({ defaults }: QuickBookingWidgetProps) {
   }
 
   return (
-    <div className="rounded-3xl border border-border bg-card p-4 shadow-xl shadow-primary/5 sm:p-6 lg:p-7">
+    <div className="surface-card-elevated relative overflow-hidden p-2 sm:p-3">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-primary/5 via-transparent to-accent/5"
+      />
       <form
-        className="grid gap-3 sm:gap-4 md:grid-cols-[1.3fr_1fr_1fr_auto] md:items-end"
         onSubmit={handleSubmit}
+        className="grid gap-2 md:grid-cols-[1.3fr_1fr_1fr_auto] md:items-stretch md:gap-0 md:divide-x md:divide-border"
       >
-        <label className="flex flex-col gap-2">
-          <span className="flex items-center gap-2 text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
-            <MapPin className="h-4 w-4 text-primary" aria-hidden />
-            {t.quickBook.where}
-          </span>
+        <Field
+          icon={<MapPin className="h-4 w-4" aria-hidden />}
+          label={t.quickBook.where}
+          className="md:rounded-r-none rtl:md:rounded-l-none rtl:md:rounded-r-2xl"
+        >
           <select
             value={pickup}
             onChange={(e) => setPickup(e.target.value)}
-            className="h-14 rounded-2xl border border-border bg-background px-4 text-base font-medium text-foreground outline-none ring-primary/30 transition-shadow focus:ring-2"
+            className="w-full bg-transparent text-base font-semibold text-foreground outline-none"
           >
             {rentalLocations.map((loc) => (
               <option key={loc} value={loc}>
@@ -56,46 +65,67 @@ export function QuickBookingWidget({ defaults }: QuickBookingWidgetProps) {
               </option>
             ))}
           </select>
-        </label>
+        </Field>
 
-        <label className="flex flex-col gap-2">
-          <span className="flex items-center gap-2 text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
-            <CalendarDays className="h-4 w-4 text-primary" aria-hidden />
-            {t.quickBook.from}
-          </span>
+        <Field
+          icon={<CalendarDays className="h-4 w-4" aria-hidden />}
+          label={t.quickBook.from}
+          className="md:rounded-none"
+        >
           <input
             type="date"
             required
             value={pickupDate}
             min={defaults.pickupDate}
             onChange={(e) => setPickupDate(e.target.value)}
-            className="h-14 rounded-2xl border border-border bg-background px-4 text-base font-medium text-foreground outline-none ring-primary/30 transition-shadow focus:ring-2"
+            className="w-full bg-transparent text-base font-semibold text-foreground outline-none"
           />
-        </label>
+        </Field>
 
-        <label className="flex flex-col gap-2">
-          <span className="flex items-center gap-2 text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
-            <CalendarDays className="h-4 w-4 text-primary" aria-hidden />
-            {t.quickBook.until}
-          </span>
+        <Field
+          icon={<CalendarDays className="h-4 w-4" aria-hidden />}
+          label={t.quickBook.until}
+          className="md:rounded-none"
+        >
           <input
             type="date"
             required
             value={returnDate}
             min={pickupDate}
             onChange={(e) => setReturnDate(e.target.value)}
-            className="h-14 rounded-2xl border border-border bg-background px-4 text-base font-medium text-foreground outline-none ring-primary/30 transition-shadow focus:ring-2"
+            className="w-full bg-transparent text-base font-semibold text-foreground outline-none"
           />
-        </label>
+        </Field>
 
         <button
           type="submit"
-          className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-6 text-base font-semibold text-primary-foreground shadow-md shadow-primary/25 transition-transform hover:-translate-y-0.5 md:w-auto md:px-8"
+          className="btn-primary group h-14 w-full shrink-0 px-6 text-base sm:h-16 md:my-1 md:me-1 md:w-auto md:px-7 md:text-[15px]"
         >
           <Search className="h-5 w-5" aria-hidden />
           {t.quickBook.findMyCar}
         </button>
       </form>
     </div>
+  );
+}
+
+type FieldProps = {
+  icon: React.ReactNode;
+  label: string;
+  className?: string;
+  children: React.ReactNode;
+};
+
+function Field({ icon, label, className = "", children }: FieldProps) {
+  return (
+    <label
+      className={`group flex cursor-pointer flex-col gap-1 rounded-2xl px-4 py-3 transition-colors hover:bg-muted/60 sm:px-5 ${className}`}
+    >
+      <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        <span className="text-primary">{icon}</span>
+        {label}
+      </span>
+      <span className="flex items-center">{children}</span>
+    </label>
   );
 }

@@ -16,7 +16,6 @@ type CarDetailsContentProps = {
   initialTo?: string;
 };
 
-/** Client wrapper so the entire details page can read translations + live Firestore. */
 export function CarDetailsContent({
   carId,
   initialPickup,
@@ -47,10 +46,7 @@ export function CarDetailsContent({
         <p className="mt-2 text-sm text-muted-foreground">
           This car is no longer available.
         </p>
-        <Link
-          href="/fleet"
-          className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground"
-        >
+        <Link href="/fleet" className="btn-primary mt-6 h-12 px-6 text-sm">
           {t.dashboard.emptyCta}
         </Link>
       </div>
@@ -58,12 +54,6 @@ export function CarDetailsContent({
   }
   const galleryImages = car.images?.length ? car.images : [car.imageUrl];
   const typeLabel = t.cars.options.type[car.type] ?? car.type;
-  const steps = [
-    t.steps.items[1].title, // "Choose your car"
-    t.steps.items[0].title, // "Pick your dates" — already done in widget
-    t.steps.items[2].title, // "Come pick it up"
-  ] as const;
-  // Simpler: use the three localized steps in order with current=1 (we're still on car details).
 
   const STEPS = [
     t.steps.items[0].title,
@@ -75,9 +65,12 @@ export function CarDetailsContent({
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
       <Link
         href="/fleet"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+        className="group inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
       >
-        <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" aria-hidden />
+        <ArrowLeft
+          className="h-4 w-4 transition-transform group-hover:-translate-x-1 rtl-flip"
+          aria-hidden
+        />
         {t.carDetails.back}
       </Link>
 
@@ -87,43 +80,49 @@ export function CarDetailsContent({
 
       <div className="mt-10 grid gap-10 lg:grid-cols-12 lg:items-start">
         <div className="lg:col-span-7 animate-fade-up">
-          <ImageGallery images={galleryImages} alt={`${car.make} ${car.model}`} />
+          <ImageGallery
+            images={galleryImages}
+            alt={`${car.make} ${car.model}`}
+          />
 
-          <div className="mt-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+          <div className="mt-12">
+            <p className="eyebrow">
               {typeLabel} · {car.year}
             </p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              {car.make} {car.model}
+            <h1 className="mt-4 text-[clamp(2.25rem,4.6vw,3.5rem)] font-semibold leading-[1.04] tracking-tight text-foreground">
+              {car.make}{" "}
+              <span className="font-display italic font-normal text-flame">
+                {car.model}
+              </span>
             </h1>
             {car.description ? (
-              <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-muted-foreground">
+              <p className="mt-5 max-w-2xl text-[17px] leading-relaxed text-muted-foreground">
                 {car.description}
               </p>
             ) : null}
           </div>
 
-          <section className="mt-10">
-            <h2 className="text-lg font-semibold text-foreground">
+          <section className="mt-12">
+            <h2 className="text-xl font-semibold tracking-tight text-foreground">
               {t.carDetails.goodToKnow}
             </h2>
-            <div className="mt-4">
+            <div className="mt-5">
               <CarSpecs car={car} />
             </div>
           </section>
 
-          <section className="mt-10">
-            <h2 className="text-lg font-semibold text-foreground">
+          <section className="mt-12">
+            <h2 className="text-xl font-semibold tracking-tight text-foreground">
               {t.carDetails.whatsIncluded}
             </h2>
-            <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+            <ul className="mt-5 grid gap-2.5 sm:grid-cols-2">
               {car.features.map((feature) => (
                 <li
                   key={feature}
-                  className="flex items-center gap-2 text-sm text-foreground"
+                  className="flex items-center gap-3 rounded-2xl border border-border bg-card/70 px-4 py-3 text-sm text-foreground transition-colors hover:bg-card"
                 >
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <Check className="h-4 w-4" aria-hidden />
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-success/10 text-success ring-1 ring-success/20">
+                    <Check className="h-3.5 w-3.5" aria-hidden strokeWidth={3} />
                   </span>
                   {feature}
                 </li>

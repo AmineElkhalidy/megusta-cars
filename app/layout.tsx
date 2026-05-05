@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { FloatingHelp } from "@/components/layout/floating-help";
@@ -15,6 +15,14 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+/** Editorial display face — used for hero/section headlines. */
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -62,7 +70,7 @@ export default function RootLayout({
     <html
       lang="en"
       dir="ltr"
-      className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full scroll-smooth antialiased`}
       suppressHydrationWarning
     >
       <head>
@@ -70,7 +78,12 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: localeBootstrap }}
         />
       </head>
-      <body className="flex min-h-full flex-col bg-background text-foreground">
+      <body className="relative flex min-h-full flex-col bg-background text-foreground">
+        {/* Soft ambient mesh sitting behind every page — keeps composition warm without overpowering content. */}
+        <div
+          aria-hidden
+          className="pointer-events-none fixed inset-0 -z-10 bg-mesh-warm opacity-70"
+        />
         <LocaleSync />
         <SiteHeader />
         <main className="flex-1">{children}</main>
