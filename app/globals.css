@@ -1,26 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fafafa;
-  --foreground: #1d1d1f;
-  --muted: #f5f5f7;
-  --muted-foreground: #6e6e73;
+  /* Warm, lovable coral/orange palette. Easy on the eye, distinctive, friendly. */
+  --background: #fffaf5;
+  --foreground: #1a1612;
+  --muted: #fff2e8;
+  --muted-foreground: #6f6358;
   --card: #ffffff;
-  --border: rgba(0, 0, 0, 0.08);
-  --primary: #0071e3;
+  --border: rgba(234, 88, 12, 0.12);
+  --primary: #ea580c;          /* orange-600 */
   --primary-foreground: #ffffff;
+  --accent: #fb7185;           /* rose-400, used sparingly */
+  --success: #10b981;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #000000;
-    --foreground: #f5f5f7;
-    --muted: #1d1d1f;
-    --muted-foreground: #a1a1a6;
-    --card: #1c1c1e;
-    --border: rgba(255, 255, 255, 0.12);
-    --primary: #0a84ff;
-    --primary-foreground: #ffffff;
+    --background: #0f0a07;
+    --foreground: #f5ede3;
+    --muted: #1c120b;
+    --muted-foreground: #a89a8a;
+    --card: #1a110a;
+    --border: rgba(251, 146, 60, 0.18);
+    --primary: #f97316;
+    --primary-foreground: #0f0a07;
+    --accent: #fb7185;
   }
 }
 
@@ -33,6 +37,8 @@
   --color-border: var(--border);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-success: var(--success);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -41,4 +47,38 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Gentle reveal animation — makes scrolling feel alive without requiring JS. */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-float {
+  animation: float-soft 3.5s ease-in-out infinite;
+}
+
+/* Warm gradient used behind section backgrounds. */
+.bg-warm-glow {
+  background: radial-gradient(
+    1200px circle at 50% -20%,
+    rgba(234, 88, 12, 0.18),
+    transparent 60%
+  );
 }

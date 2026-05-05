@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Cog,
   Fuel,
@@ -8,22 +10,29 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { Car } from "@/lib/types";
+import { useT } from "@/lib/i18n/use-t";
 
 type Spec = { icon: LucideIcon; label: string; value: string };
 
-/** Compact icon grid summarizing the key specs of a car. */
 export function CarSpecs({ car }: { car: Car }) {
+  const { t } = useT();
+  const transmissionLabel =
+    t.cars.options.transmission[car.transmission] ?? car.transmission;
+  const fuelLabel = t.cars.options.fuel[car.fuel] ?? car.fuel;
+
   const specs: Spec[] = [
-    { icon: Cog, label: "Transmission", value: car.transmission },
-    { icon: Fuel, label: "Fuel", value: car.fuel },
-    { icon: Users, label: "Seats", value: `${car.seats}` },
-    { icon: DoorOpen, label: "Doors", value: `${car.doors}` },
+    { icon: Cog, label: t.carDetails.specs.transmission, value: transmissionLabel },
+    { icon: Fuel, label: t.carDetails.specs.fuel, value: fuelLabel },
+    { icon: Users, label: t.carDetails.specs.seats, value: `${car.seats}` },
+    { icon: DoorOpen, label: t.carDetails.specs.doors, value: `${car.doors}` },
     {
       icon: Snowflake,
-      label: "Climate",
-      value: car.airConditioning ? "Air Conditioning" : "Manual",
+      label: t.carDetails.specs.climate,
+      value: car.airConditioning
+        ? t.carDetails.specs.ac
+        : t.carDetails.specs.noAc,
     },
-    { icon: CalendarDays, label: "Year", value: `${car.year}` },
+    { icon: CalendarDays, label: t.carDetails.specs.year, value: `${car.year}` },
   ];
 
   return (

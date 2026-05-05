@@ -19,11 +19,15 @@ export function formatDate(dateStr: string): string {
   });
 }
 
-/** Format USD currency (whole-dollar precision is fine for daily-rate display). */
+/**
+ * Format a value as Moroccan Dirham using the familiar local "DH" suffix
+ * (e.g. "850 DH", "1,200 DH"). Grouped thousands, zero fraction digits.
+ * We build the string manually instead of relying on `Intl` so the suffix
+ * stays exactly "DH" across every locale.
+ */
 export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
+  const amount = new Intl.NumberFormat("en-US", {
     maximumFractionDigits: 0,
   }).format(value);
+  return `${amount} DH`;
 }

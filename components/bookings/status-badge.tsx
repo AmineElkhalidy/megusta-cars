@@ -1,4 +1,7 @@
+"use client";
+
 import type { BookingStatus } from "@/lib/types";
+import { useT } from "@/lib/i18n/use-t";
 
 const STATUS_STYLES: Record<BookingStatus, string> = {
   pending:
@@ -12,20 +15,14 @@ const STATUS_STYLES: Record<BookingStatus, string> = {
     "bg-zinc-500/10 text-zinc-700 dark:text-zinc-300 ring-zinc-500/20",
 };
 
-const STATUS_LABEL: Record<BookingStatus, string> = {
-  pending: "Pending",
-  approved: "Approved",
-  rejected: "Rejected",
-  completed: "Completed",
-  cancelled: "Cancelled",
-};
-
 export function StatusBadge({ status }: { status: BookingStatus }) {
+  const { t } = useT();
+  const label = t.status[status];
   return (
     <span
       className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ring-inset ${STATUS_STYLES[status]}`}
     >
-      {STATUS_LABEL[status]}
+      {label}
     </span>
   );
 }

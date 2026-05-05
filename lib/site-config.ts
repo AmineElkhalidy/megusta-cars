@@ -1,27 +1,41 @@
 /**
- * Central copy and navigation used across marketing layout components.
- * Keeps URLs and labels consistent as the app grows.
+ * Central copy and navigation shared across the marketing + dashboard shell.
+ * Labels are intentionally plain so non-technical users instantly understand them.
  */
 
 export const site = {
   name: "Me Gusta Cars",
-  tagline: "Rent in three taps.",
+  tagline: "Rent a car in three easy steps.",
   description:
-    "Premium cars, transparent pricing, and booking that stays out of your way.",
+    "Friendly car rental. Simple prices. No credit card needed — just pay when you pick up.",
+  /** Business phone number. Use digits only (international format) for tel:/WhatsApp. */
+  phone: "+212600000000",
+  phoneDisplay: "+212 600 000 000",
+  whatsappMessage: "Hi! I'd like to rent a car.",
 } as const;
 
 export type NavItem = { label: string; href: string };
 
-/** Primary navigation shown in the header (desktop + mobile). */
+/** Public navigation shown in the header. Admin intentionally stays out of main nav. */
 export const mainNav: NavItem[] = [
-  { label: "Fleet", href: "/fleet" },
-  { label: "My bookings", href: "/dashboard" },
-  { label: "Admin", href: "/admin" },
+  { label: "Cars", href: "/fleet" },
+  { label: "My trips", href: "/dashboard" },
 ];
 
-/** Pick-up / drop-off options for the quick booking widget. Replace with API data later. */
+/** Pick-up / drop-off options for the quick booking widget. */
 export const rentalLocations: readonly string[] = [
   "City center desk",
   "Airport terminal",
   "Train station",
 ];
+
+/** Generate the WhatsApp deep-link used by Call/Chat buttons. */
+export function whatsappLink(message: string = site.whatsappMessage): string {
+  const number = site.phone.replace(/[^\d]/g, "");
+  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+}
+
+/** Generate a `tel:` link for one-tap dialling on mobile. */
+export function telLink(): string {
+  return `tel:${site.phone}`;
+}

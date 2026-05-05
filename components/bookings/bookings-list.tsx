@@ -6,9 +6,10 @@ import { CalendarRange, MapPin, Ticket, Trash2 } from "lucide-react";
 import { useBookingStore, useStoreHydration } from "@/lib/store";
 import { formatCurrency, formatDate } from "@/lib/booking-utils";
 import { StatusBadge } from "@/components/bookings/status-badge";
+import { useT } from "@/lib/i18n/use-t";
 
-/** Renders the user's bookings — handles hydration so SSR doesn't flash empty state. */
 export function BookingsList() {
+  const { t } = useT();
   const hydrated = useStoreHydration();
   const bookings = useBookingStore((s) => s.bookings);
   const cancelBooking = useBookingStore((s) => s.cancelBooking);
@@ -16,7 +17,7 @@ export function BookingsList() {
   if (!hydrated) {
     return (
       <div className="rounded-2xl border border-border bg-card p-12 text-center text-sm text-muted-foreground">
-        Loading your reservations…
+        {t.dashboard.loading}
       </div>
     );
   }
@@ -25,7 +26,6 @@ export function BookingsList() {
     return <EmptyState />;
   }
 
-  // Active bookings (pending/approved) come first; the rest are archived.
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const activeStatuses = new Set(["pending", "approved"]);
@@ -42,7 +42,7 @@ export function BookingsList() {
       {upcoming.length > 0 ? (
         <section>
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            Upcoming
+            {t.dashboard.upcoming}
           </h2>
           <ul className="mt-4 space-y-4">
             {upcoming.map((booking) => (
@@ -59,7 +59,7 @@ export function BookingsList() {
       {past.length > 0 ? (
         <section>
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            Past & cancelled
+            {t.dashboard.past}
           </h2>
           <ul className="mt-4 space-y-4">
             {past.map((booking) => (
@@ -78,6 +78,7 @@ type BookingRowProps = {
 };
 
 function BookingRow({ booking, onCancel }: BookingRowProps) {
+  const { t } = useT();
   return (
     <li className="overflow-hidden rounded-2xl border border-border bg-card transition-shadow hover:shadow-md">
       <div className="flex flex-col sm:flex-row">
@@ -117,7 +118,9 @@ function BookingRow({ booking, onCancel }: BookingRowProps) {
                 aria-hidden
               />
               <div>
-                <dt className="font-medium text-foreground">Dates</dt>
+                <dt className="font-medium text-foreground">
+                  {t.dashboard.datesLabel}
+                </dt>
                 <dd className="text-muted-foreground">
                   {formatDate(booking.startDate)} → {formatDate(booking.endDate)}
                 </dd>
@@ -129,7 +132,9 @@ function BookingRow({ booking, onCancel }: BookingRowProps) {
                 aria-hidden
               />
               <div>
-                <dt className="font-medium text-foreground">Locations</dt>
+                <dt className="font-medium text-foreground">
+                  {t.dashboard.locationsLabel}
+                </dt>
                 <dd className="text-muted-foreground">
                   {booking.pickupLocation} → {booking.dropoffLocation}
                 </dd>
@@ -139,11 +144,13 @@ function BookingRow({ booking, onCancel }: BookingRowProps) {
 
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4 text-sm">
             <div>
-              <span className="text-muted-foreground">Total · </span>
+              <span className="text-muted-foreground">
+                {t.dashboard.totalLabel} ·{" "}
+              </span>
               <span className="font-semibold text-foreground">
                 {formatCurrency(booking.totalAmount)}
               </span>
-              <span className="text-muted-foreground"> · pay at pick-up</span>
+              <span className="text-muted-foreground"> · {t.dashboard.payAtPickup}</span>
             </div>
             {onCancel ? (
               <button
@@ -152,7 +159,7 @@ function BookingRow({ booking, onCancel }: BookingRowProps) {
                 className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-red-500/40 hover:text-red-600 dark:hover:text-red-400"
               >
                 <Trash2 className="h-3.5 w-3.5" aria-hidden />
-                Cancel
+                {t.dashboard.cancel}
               </button>
             ) : null}
           </div>
@@ -163,21 +170,21 @@ function BookingRow({ booking, onCancel }: BookingRowProps) {
 }
 
 function EmptyState() {
+  const { t } = useT();
   return (
     <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/30 p-12 text-center">
       <Ticket className="h-8 w-8 text-muted-foreground" aria-hidden />
       <h3 className="mt-4 text-base font-semibold text-foreground">
-        No reservations yet
+        {t.dashboard.emptyTitle}
       </h3>
       <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-        When you book a car, it'll show up right here so you can keep track of
-        your trips.
+        {t.dashboard.emptySubtitle}
       </p>
       <Link
         href="/fleet"
         className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
       >
-        Browse the fleet
+        {t.dashboard.emptyCta}
       </Link>
     </div>
   );

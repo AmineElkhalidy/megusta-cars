@@ -148,10 +148,10 @@ export function CarFormDialog({
             />
 
             <Field
-              label="Price per day (USD)"
+              label="Price per day (DH)"
               name="pricePerDay"
               type="number"
-              defaultValue={initial?.pricePerDay ?? 80}
+              defaultValue={initial?.pricePerDay ?? 800}
               required
             />
             <Select

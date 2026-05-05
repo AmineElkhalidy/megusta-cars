@@ -3,8 +3,10 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, Loader2, ArrowRight } from "lucide-react";
+import { CheckCircle2, Loader2, Phone, ArrowRight, MessageCircle } from "lucide-react";
 import { useBookingStore } from "@/lib/store";
+import { telLink, whatsappLink } from "@/lib/site-config";
+import { useT } from "@/lib/i18n/use-t";
 
 type CheckoutFormProps = {
   carId: string;
@@ -28,6 +30,7 @@ export function CheckoutForm({
   total,
 }: CheckoutFormProps) {
   const router = useRouter();
+  const { t } = useT();
   const addBooking = useBookingStore((s) => s.addBooking);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -64,7 +67,7 @@ export function CheckoutForm({
       setBookingId(newBooking.id);
     } catch (error) {
       console.error("Error creating booking:", error);
-      alert("Something went wrong. Please try again.");
+      alert(t.success.error);
     } finally {
       setIsSubmitting(false);
     }
@@ -72,34 +75,33 @@ export function CheckoutForm({
 
   if (bookingId) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-card p-8 text-center sm:p-12">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-          <CheckCircle2 className="h-8 w-8" aria-hidden />
+      <div className="animate-fade-up flex flex-col items-center justify-center rounded-3xl border border-border bg-card p-8 text-center shadow-sm sm:p-12">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/10 text-4xl">
+          🎉
         </div>
-        <h2 className="mt-6 text-2xl font-semibold tracking-tight text-foreground">
-          Reservation confirmed!
+        <h2 className="mt-6 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+          {t.success.title}
         </h2>
-        <p className="mt-3 max-w-md text-[15px] text-muted-foreground">
-          We've held your vehicle. Our team will contact you shortly. Bring your driver's
-          license to the desk and pay the full amount on pick-up.
+        <p className="mt-3 max-w-md text-[16px] leading-relaxed text-muted-foreground">
+          {t.success.body}
         </p>
-        <p className="mt-4 rounded-full bg-muted px-4 py-1.5 font-mono text-xs text-muted-foreground">
-          Reference · {bookingId}
+        <p className="mt-5 rounded-full bg-muted px-4 py-1.5 font-mono text-xs text-muted-foreground">
+          {t.success.referenceLabel} · {bookingId}
         </p>
 
-        <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
+        <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
           <Link
             href="/dashboard"
-            className="inline-flex h-11 items-center justify-center gap-1.5 rounded-full bg-primary px-6 text-[15px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            className="inline-flex h-12 items-center justify-center gap-1.5 rounded-full bg-primary px-6 text-base font-semibold text-primary-foreground shadow-md shadow-primary/25 transition-transform hover:-translate-y-0.5"
           >
-            View my bookings
-            <ArrowRight className="h-4 w-4" aria-hidden />
+            {t.success.seeTrip}
+            <ArrowRight className="h-4 w-4 rtl:-scale-x-100" aria-hidden />
           </Link>
           <button
             onClick={() => router.push("/fleet")}
-            className="inline-flex h-11 items-center justify-center rounded-full border border-border px-6 text-[15px] font-semibold text-foreground transition-colors hover:bg-muted"
+            className="inline-flex h-12 items-center justify-center rounded-full border border-border bg-card px-6 text-base font-semibold text-foreground transition-colors hover:bg-muted"
           >
-            Browse more cars
+            {t.success.browseMore}
           </button>
         </div>
       </div>
@@ -109,44 +111,52 @@ export function CheckoutForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-2xl border border-border bg-card p-5 sm:p-6 lg:p-8"
+      className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8"
     >
-      <h2 className="text-lg font-semibold text-foreground">Your details</h2>
+      <h2 className="text-xl font-semibold text-foreground sm:text-2xl">
+        {t.checkout.formTitle}
+      </h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        Just the essentials to secure your booking.
+        {t.checkout.formSubtitle}
       </p>
 
-      <div className="mt-6 grid gap-5 sm:grid-cols-2">
-        <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
-          <span className="font-medium text-foreground">Full name</span>
+      <div className="mt-6 space-y-4">
+        <label className="flex flex-col gap-2 text-sm">
+          <span className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {t.checkout.nameLabel}
+          </span>
           <input
             type="text"
             name="fullName"
             required
-            placeholder="John Doe"
-            className="h-11 rounded-xl border border-border bg-background px-3 text-[15px] text-foreground outline-none ring-primary/30 transition-shadow focus:ring-2"
+            placeholder={t.checkout.namePlaceholder}
+            className="h-14 rounded-2xl border border-border bg-background px-4 text-base font-medium text-foreground outline-none ring-primary/30 focus:ring-2"
           />
         </label>
 
-        <label className="flex flex-col gap-1.5 text-sm">
-          <span className="font-medium text-foreground">Email address</span>
-          <input
-            type="email"
-            name="email"
-            required
-            placeholder="john@example.com"
-            className="h-11 rounded-xl border border-border bg-background px-3 text-[15px] text-foreground outline-none ring-primary/30 transition-shadow focus:ring-2"
-          />
-        </label>
-
-        <label className="flex flex-col gap-1.5 text-sm">
-          <span className="font-medium text-foreground">Phone number</span>
+        <label className="flex flex-col gap-2 text-sm">
+          <span className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {t.checkout.phoneLabel}
+          </span>
           <input
             type="tel"
             name="phone"
             required
-            placeholder="+1 (555) 000-0000"
-            className="h-11 rounded-xl border border-border bg-background px-3 text-[15px] text-foreground outline-none ring-primary/30 transition-shadow focus:ring-2"
+            placeholder="+212 6 00 00 00 00"
+            className="h-14 rounded-2xl border border-border bg-background px-4 text-base font-medium text-foreground outline-none ring-primary/30 focus:ring-2"
+          />
+        </label>
+
+        <label className="flex flex-col gap-2 text-sm">
+          <span className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {t.checkout.emailLabel}
+          </span>
+          <input
+            type="email"
+            name="email"
+            required
+            placeholder={t.checkout.emailPlaceholder}
+            className="h-14 rounded-2xl border border-border bg-background px-4 text-base font-medium text-foreground outline-none ring-primary/30 focus:ring-2"
           />
         </label>
       </div>
@@ -155,20 +165,47 @@ export function CheckoutForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-8 text-[15px] font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
+          className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-8 text-base font-semibold text-primary-foreground shadow-md shadow-primary/25 transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {isSubmitting ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-              Securing reservation...
+              {t.checkout.submitting}
             </>
           ) : (
-            "Reserve now, pay at pick-up"
+            <>
+              <CheckCircle2 className="h-5 w-5" aria-hidden />
+              {t.checkout.confirmButton}
+            </>
           )}
         </button>
         <p className="mt-4 text-center text-xs text-muted-foreground">
-          By clicking reserve you agree to our Terms of Service and Privacy Policy.
+          {t.checkout.disclaimer}
         </p>
+      </div>
+
+      <div className="mt-6 flex flex-col gap-2 rounded-2xl bg-muted/50 p-4 text-center sm:flex-row sm:items-center sm:justify-between sm:text-start">
+        <p className="text-sm text-muted-foreground">
+          {t.checkout.alternativeLabel}
+        </p>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <a
+            href={telLink()}
+            className="inline-flex items-center justify-center gap-1.5 rounded-full bg-card px-4 py-2 text-sm font-semibold text-foreground ring-1 ring-border transition-colors hover:bg-background"
+          >
+            <Phone className="h-4 w-4" aria-hidden />
+            {t.checkout.callButton}
+          </a>
+          <a
+            href={whatsappLink()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-1.5 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-600"
+          >
+            <MessageCircle className="h-4 w-4" aria-hidden />
+            {t.checkout.whatsappButton}
+          </a>
+        </div>
       </div>
     </form>
   );

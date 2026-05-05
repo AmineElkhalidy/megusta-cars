@@ -16,7 +16,7 @@ export const mockCars: Car[] = [
     seats: 5,
     doors: 4,
     airConditioning: true,
-    pricePerDay: 85,
+    pricePerDay: 850,
     imageUrl:
       "https://images.unsplash.com/photo-1560958089-b8a1929cea89?q=80&w=2071&auto=format&fit=crop",
     images: [
@@ -40,7 +40,7 @@ export const mockCars: Car[] = [
     seats: 5,
     doors: 5,
     airConditioning: true,
-    pricePerDay: 120,
+    pricePerDay: 1200,
     imageUrl:
       "https://images.unsplash.com/photo-1503376712341-0048236c9302?q=80&w=2070&auto=format&fit=crop",
     images: [
@@ -64,7 +64,7 @@ export const mockCars: Car[] = [
     seats: 4,
     doors: 2,
     airConditioning: true,
-    pricePerDay: 110,
+    pricePerDay: 1100,
     imageUrl:
       "https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=2070&auto=format&fit=crop",
     images: [
@@ -88,7 +88,7 @@ export const mockCars: Car[] = [
     seats: 7,
     doors: 5,
     airConditioning: true,
-    pricePerDay: 135,
+    pricePerDay: 1350,
     imageUrl:
       "https://images.unsplash.com/photo-1609521263047-f8f205293f24?q=80&w=2070&auto=format&fit=crop",
     images: [
@@ -112,7 +112,7 @@ export const mockCars: Car[] = [
     seats: 5,
     doors: 4,
     airConditioning: true,
-    pricePerDay: 95,
+    pricePerDay: 950,
     imageUrl:
       "https://images.unsplash.com/photo-1606152421802-db97b9c7a11b?q=80&w=2074&auto=format&fit=crop",
     images: [
@@ -136,7 +136,7 @@ export const mockCars: Car[] = [
     seats: 5,
     doors: 4,
     airConditioning: true,
-    pricePerDay: 105,
+    pricePerDay: 1050,
     imageUrl:
       "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?q=80&w=2070&auto=format&fit=crop",
     images: [

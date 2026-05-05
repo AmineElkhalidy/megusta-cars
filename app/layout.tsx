@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { FloatingHelp } from "@/components/layout/floating-help";
+import { LocaleSync } from "@/components/layout/locale-sync";
 import { site } from "@/lib/site-config";
 import "./globals.css";
 
@@ -17,11 +19,39 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: `${site.name} · Premium car rental`,
+    default: `${site.name} · Friendly car rental`,
     template: `%s · ${site.name}`,
   },
   description: site.description,
 };
+
+/**
+ * Inline bootstrap: read the persisted locale from localStorage and set
+ * `<html lang>` + `<html dir>` BEFORE React hydrates. This prevents any flash
+ * of LTR content when a Darija user loads the site.
+ */
+const localeBootstrap = `
+(function () {
+  try {
+    var raw = localStorage.getItem('megusta-locale');
+    var locale = 'en';
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      if (parsed && parsed.state && parsed.state.locale) {
+        locale = parsed.state.locale;
+      }
+    }
+    var meta = {
+      en: { lang: 'en', dir: 'ltr' },
+      fr: { lang: 'fr', dir: 'ltr' },
+      ar: { lang: 'ar-MA', dir: 'rtl' }
+    };
+    var m = meta[locale] || meta.en;
+    document.documentElement.lang = m.lang;
+    document.documentElement.dir = m.dir;
+  } catch (err) {}
+})();
+`;
 
 export default function RootLayout({
   children,
@@ -31,12 +61,21 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      dir="ltr"
       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{ __html: localeBootstrap }}
+        />
+      </head>
       <body className="flex min-h-full flex-col bg-background text-foreground">
+        <LocaleSync />
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <SiteFooter />
+        <FloatingHelp />
       </body>
     </html>
   );

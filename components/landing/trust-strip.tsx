@@ -1,26 +1,35 @@
-import { ShieldCheck, Wallet, Clock4, MapPin } from "lucide-react";
+"use client";
 
-const items = [
-  { icon: ShieldCheck, label: "Insured fleet" },
-  { icon: Wallet, label: "No card required" },
-  { icon: Clock4, label: "24/7 support" },
-  { icon: MapPin, label: "City + airport pick-up" },
-] as const;
+import { ShieldCheck, Wallet, Clock4, HeartHandshake, type LucideIcon } from "lucide-react";
+import { useT } from "@/lib/i18n/use-t";
 
-/** Quick reassurance row beneath the hero. */
+const ICONS: LucideIcon[] = [Wallet, ShieldCheck, Clock4, HeartHandshake];
+
 export function TrustStrip() {
+  const { t } = useT();
+
   return (
-    <section className="border-y border-border bg-background">
+    <section className="border-t border-border bg-background">
       <ul className="mx-auto grid max-w-6xl grid-cols-2 gap-px overflow-hidden bg-border md:grid-cols-4">
-        {items.map((item) => (
-          <li
-            key={item.label}
-            className="flex items-center justify-center gap-2 bg-background px-4 py-5 text-sm text-muted-foreground"
-          >
-            <item.icon className="h-4 w-4 text-primary" aria-hidden />
-            <span className="font-medium">{item.label}</span>
-          </li>
-        ))}
+        {t.trust.items.map((item, idx) => {
+          const Icon = ICONS[idx] ?? ShieldCheck;
+          return (
+            <li
+              key={item.label}
+              className="flex items-center gap-3 bg-background px-5 py-5 sm:py-6"
+            >
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <Icon className="h-5 w-5" aria-hidden />
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-foreground">
+                  {item.label}
+                </p>
+                <p className="text-xs text-muted-foreground">{item.hint}</p>
+              </div>
+            </li>
+          );
+        })}
       </ul>
     </section>
   );

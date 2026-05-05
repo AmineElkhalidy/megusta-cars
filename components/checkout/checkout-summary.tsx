@@ -1,6 +1,10 @@
+"use client";
+
 import Image from "next/image";
-import { CheckCircle2, CalendarDays, MapPinned, User } from "lucide-react";
+import { CheckCircle2, CalendarDays, MapPinned } from "lucide-react";
 import type { Car } from "@/lib/types";
+import { formatCurrency, formatDate } from "@/lib/booking-utils";
+import { useT } from "@/lib/i18n/use-t";
 
 type CheckoutSummaryProps = {
   car: Car;
@@ -21,13 +25,17 @@ export function CheckoutSummary({
   days,
   total,
 }: CheckoutSummaryProps) {
+  const { t } = useT();
+  const typeLabel = t.cars.options.type[car.type] ?? car.type;
+
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 lg:p-8">
-      <h2 className="text-lg font-semibold text-foreground">Reservation Summary</h2>
-      
-      {/* Car details */}
-      <div className="mt-6 flex items-center gap-4 border-b border-border pb-6">
-        <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-lg bg-muted">
+    <div className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-7">
+      <h2 className="text-lg font-semibold text-foreground">
+        {t.checkout.summaryTitle}
+      </h2>
+
+      <div className="mt-5 flex items-center gap-4 border-b border-border pb-5">
+        <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-2xl bg-muted">
           <Image
             src={car.imageUrl}
             alt={`${car.make} ${car.model}`}
@@ -37,56 +45,64 @@ export function CheckoutSummary({
           />
         </div>
         <div>
-          <h3 className="font-medium text-foreground">
+          <h3 className="font-semibold text-foreground">
             {car.make} {car.model}
           </h3>
-          <p className="text-sm text-muted-foreground">{car.type}</p>
+          <p className="text-sm text-muted-foreground">{typeLabel} · {car.year}</p>
         </div>
       </div>
 
-      {/* Trip details */}
-      <dl className="mt-6 space-y-4 text-sm">
+      <dl className="mt-5 space-y-4 text-sm">
         <div className="flex items-start gap-3">
-          <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+          <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
           <div>
-            <dt className="font-medium text-foreground">Dates</dt>
+            <dt className="font-semibold text-foreground">{t.checkout.datesLabel}</dt>
             <dd className="text-muted-foreground">
-              {from} to {to} ({days} {days === 1 ? "day" : "days"})
+              {formatDate(from)} → {formatDate(to)}
+            </dd>
+            <dd className="text-xs text-muted-foreground">
+              {t.checkout.dayCount(days)}
             </dd>
           </div>
         </div>
         <div className="flex items-start gap-3">
-          <MapPinned className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+          <MapPinned className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
           <div>
-            <dt className="font-medium text-foreground">Locations</dt>
-            <dd className="text-muted-foreground">
-              Pick-up: {pickup} <br />
-              Drop-off: {dropoff}
-            </dd>
+            <dt className="font-semibold text-foreground">
+              {t.checkout.locationsLabel}
+            </dt>
+            <dd className="text-muted-foreground">{pickup}</dd>
+            {dropoff !== pickup ? (
+              <dd className="text-muted-foreground">
+                {t.checkout.returnLabel}: {dropoff}
+              </dd>
+            ) : null}
           </div>
         </div>
       </dl>
 
-      {/* Pricing */}
-      <div className="mt-6 rounded-xl bg-muted/50 p-4">
+      <div className="mt-6 rounded-2xl bg-muted/70 p-4">
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">
-            ${car.pricePerDay} x {days} {days === 1 ? "day" : "days"}
+            {formatCurrency(car.pricePerDay)} × {t.checkout.dayCount(days)}
           </span>
-          <span className="font-medium text-foreground">${total}</span>
+          <span className="font-medium text-foreground">
+            {formatCurrency(total)}
+          </span>
         </div>
-        <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-3">
-          <span className="font-semibold text-foreground">Total</span>
-          <span className="text-lg font-semibold text-foreground">${total}</span>
+        <div className="mt-3 flex items-center justify-between border-t border-border/60 pt-3">
+          <span className="text-base font-semibold text-foreground">
+            {t.checkout.payLabel}
+          </span>
+          <span className="text-2xl font-semibold tracking-tight text-foreground">
+            {formatCurrency(total)}
+          </span>
         </div>
       </div>
 
-      {/* Trust marker */}
-      <div className="mt-6 flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-primary">
+      <div className="mt-5 flex items-start gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm text-emerald-700 dark:text-emerald-300">
         <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-        <p>
-          <strong className="font-semibold">No credit card required.</strong> Pay when you pick up the car at the agency.
-        </p>
+        <p>{t.checkout.noCardBanner}</p>
       </div>
     </div>
   );
