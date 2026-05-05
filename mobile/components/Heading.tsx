@@ -9,6 +9,10 @@ type HeadingProps = {
   accent?: string;
   size?: "lg" | "xl" | "2xl";
   tone?: "default" | "ink";
+  /** Position the heading in its parent. Defaults to logical-start (left in
+   *  LTR, right in RTL) for screen headers; pass `"center"` for hero panels
+   *  where the title should be centered (e.g., empty states, splash). */
+  align?: "start" | "center";
   style?: TextStyle;
 };
 
@@ -22,6 +26,7 @@ export function Heading({
   accent,
   size = "xl",
   tone = "default",
+  align = "start",
   style,
 }: HeadingProps) {
   const { isRtl } = useT();
@@ -38,9 +43,18 @@ export function Heading({
   // keep the colored body face — preserves the accent emphasis without the
   // awkward fallback rendering.
   const accentStyle = isRtl ? styles.accentRtl : styles.accent;
+  const isCenter = align === "center";
   return (
-    <View style={styles.wrap}>
-      <Text style={[styles.body, sizes, { color }, style]}>
+    <View style={[styles.wrap, isCenter && styles.wrapCenter]}>
+      <Text
+        style={[
+          styles.body,
+          sizes,
+          { color },
+          isCenter && styles.bodyCenter,
+          style,
+        ]}
+      >
         {children}
         {accent ? " " : ""}
         {accent ? (
@@ -55,6 +69,16 @@ const styles = StyleSheet.create({
   wrap: {
     flexDirection: "row",
     flexWrap: "wrap",
+    // Hug content so adjacent rows (e.g. an action button) can sit beside the
+    // heading without an invisible full-width box pushing them down. Native
+    // auto-flips `flex-start` in RTL so Arabic still hugs the right edge.
+    alignSelf: "flex-start",
+  },
+  wrapCenter: {
+    alignSelf: "center",
+  },
+  bodyCenter: {
+    textAlign: "center",
   },
   body: {
     fontFamily: theme.fontFamily.body,

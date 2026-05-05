@@ -164,6 +164,10 @@ export default function LoginScreen() {
                 autoCapitalize="none"
                 autoCorrect={false}
                 keyboardType="email-address"
+                // Email is always latin — lock writing direction so the
+                // placeholder stays flush-start and the cursor doesn't
+                // jump when the app is running in Arabic (RTL) mode.
+                textAlign="left"
                 style={[styles.input, emailFocused && styles.inputFocused]}
               />
             </Field>
@@ -181,6 +185,7 @@ export default function LoginScreen() {
                 placeholderTextColor={theme.colors.mutedForeground}
                 secureTextEntry
                 autoCapitalize="none"
+                textAlign="left"
                 style={[styles.input, passwordFocused && styles.inputFocused]}
               />
             </Field>

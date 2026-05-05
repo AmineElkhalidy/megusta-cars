@@ -144,15 +144,18 @@ const styles = StyleSheet.create({
     color: theme.colors.mutedForeground,
   },
   activeDot: {
+    // Logical `start` + `marginStart` keep the indicator centered under each
+    // tab in both LTR and RTL. Using `left`/`marginLeft` relied on RN's
+    // implicit RTL swap, which is correct today but brittle if anyone ever
+    // flips `I18nManager.swapLeftAndRightInRTL`.
     position: "absolute",
     bottom: 4,
     width: 4,
     height: 4,
     borderRadius: 2,
     backgroundColor: theme.colors.primary,
-    alignSelf: "center",
-    left: "50%",
-    marginLeft: -2,
+    start: "50%",
+    marginStart: -2,
   },
 });
 

@@ -48,7 +48,10 @@ export function CallUsCta() {
           <div className="flex flex-col gap-3 sm:flex-row md:flex-col">
             <a
               href={telLink()}
-              className="group inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-white px-6 py-4 text-base font-semibold text-foreground shadow-lg shadow-black/20 transition-transform hover:-translate-y-0.5"
+              // Pill stays white in both modes (it lives on the dark ink band),
+              // so the label uses `text-ink` which is dark in both themes —
+              // `text-foreground` would flip cream and vanish on white.
+              className="group inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-white px-6 py-4 text-base font-semibold text-ink shadow-lg shadow-black/20 transition-transform hover:-translate-y-0.5"
             >
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/12 text-primary">
                 <Phone className="h-4 w-4" aria-hidden />

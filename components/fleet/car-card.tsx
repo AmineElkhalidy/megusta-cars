@@ -44,21 +44,22 @@ export function CarCard({ car, searchParamsString }: CarCardProps) {
         {/* Bottom gradient veil for chip readability */}
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
 
-        {/* Type chip — top start */}
-        <span className="absolute start-4 top-4 inline-flex items-center rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground shadow-md backdrop-blur">
+        {/* Type chip — top start. In dark mode the chip flips to a dark glass
+            so `text-foreground` (which becomes cream) stays readable. */}
+        <span className="absolute start-4 top-4 inline-flex items-center rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground shadow-md backdrop-blur dark:bg-card/85 dark:ring-1 dark:ring-border-strong">
           {typeLabel}
         </span>
 
         {/* Hover arrow — top end */}
         <span
           aria-hidden
-          className="absolute end-4 top-4 flex h-10 w-10 -translate-y-1 items-center justify-center rounded-full bg-white/95 text-foreground opacity-0 shadow-md backdrop-blur transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100"
+          className="absolute end-4 top-4 flex h-10 w-10 -translate-y-1 items-center justify-center rounded-full bg-white/95 text-foreground opacity-0 shadow-md backdrop-blur transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 dark:bg-card/85 dark:ring-1 dark:ring-border-strong"
         >
           <ArrowUpRight className="h-4 w-4" />
         </span>
 
         {/* Price chip — bottom end, floats over the image */}
-        <div className="absolute end-4 bottom-4 inline-flex items-baseline gap-1 rounded-full bg-white/95 px-4 py-2 shadow-lg ring-1 ring-foreground/5 backdrop-blur">
+        <div className="absolute end-4 bottom-4 inline-flex items-baseline gap-1 rounded-full bg-white/95 px-4 py-2 shadow-lg ring-1 ring-foreground/5 backdrop-blur dark:bg-card/85 dark:ring-border-strong">
           <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             {t.hero.priceFrom}
           </span>

@@ -2,13 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Phone,
-  ShieldCheck,
-  Sparkles,
-  Star,
-} from "lucide-react";
+import { ArrowRight, Phone, ShieldCheck, Sparkles, Star } from "lucide-react";
 import type { QuickBookingDefaults } from "@/components/landing/quick-booking-widget";
 import { QuickBookingWidget } from "@/components/landing/quick-booking-widget";
 import { site, telLink } from "@/lib/site-config";
@@ -46,7 +40,9 @@ export function HeroSection({ bookingDefaults }: HeroSectionProps) {
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-primary">
               <Sparkles className="h-3 w-3" aria-hidden />
             </span>
-            <span className="text-foreground/80">{t.hero.tagline}</span>
+            <span className="text-foreground/80 dark:text-black">
+              {t.hero.tagline}
+            </span>
           </span>
 
           <h1 className="mt-6 text-[clamp(2.5rem,5.6vw,4rem)] font-semibold leading-[1.02] tracking-[-0.02em] text-foreground">
@@ -69,10 +65,7 @@ export function HeroSection({ bookingDefaults }: HeroSectionProps) {
                 aria-hidden
               />
             </Link>
-            <a
-              href={telLink()}
-              className="btn-ghost h-14 px-7 text-base"
-            >
+            <a href={telLink()} className="btn-ghost h-14 px-7 text-base">
               <Phone className="h-5 w-5 text-primary" aria-hidden />
               {t.hero.callLabel} {site.phoneDisplay}
             </a>
@@ -90,7 +83,11 @@ export function HeroSection({ bookingDefaults }: HeroSectionProps) {
             <span className="inline-flex items-center gap-2">
               <span className="flex items-center gap-0.5 text-amber-500">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="h-3.5 w-3.5 fill-current" aria-hidden />
+                  <Star
+                    key={i}
+                    className="h-3.5 w-3.5 fill-current"
+                    aria-hidden
+                  />
                 ))}
               </span>
               <span className="font-semibold text-foreground">4.9</span>
@@ -130,8 +127,9 @@ export function HeroSection({ bookingDefaults }: HeroSectionProps) {
             </div>
           </div>
 
-          {/* Floating "from price" chip */}
-          <div className="absolute -start-3 bottom-6 hidden animate-float items-center gap-3 rounded-2xl bg-white/95 px-4 py-3 shadow-2xl shadow-foreground/10 ring-1 ring-border backdrop-blur-md sm:flex">
+          {/* Floating "from price" chip — flips to dark glass in dark mode
+              so `text-foreground`/`text-muted-foreground` stay readable. */}
+          <div className="absolute -start-3 bottom-6 hidden animate-float items-center gap-3 rounded-2xl bg-white/95 px-4 py-3 shadow-2xl shadow-foreground/10 ring-1 ring-border backdrop-blur-md dark:bg-card/90 dark:ring-border-strong sm:flex">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 text-lg">
               ⭐
             </span>
@@ -150,7 +148,7 @@ export function HeroSection({ bookingDefaults }: HeroSectionProps) {
           </div>
 
           {/* Floating "trips" chip — top end */}
-          <div className="absolute -end-2 top-10 hidden animate-float items-center gap-3 rounded-2xl bg-white/95 px-4 py-3 shadow-2xl shadow-foreground/10 ring-1 ring-border backdrop-blur-md [animation-delay:1s] md:flex">
+          <div className="absolute -end-2 top-10 hidden animate-float items-center gap-3 rounded-2xl bg-white/95 px-4 py-3 shadow-2xl shadow-foreground/10 ring-1 ring-border backdrop-blur-md dark:bg-card/90 dark:ring-border-strong [animation-delay:1s] md:flex">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-success/10 text-lg">
               🛣️
             </span>
