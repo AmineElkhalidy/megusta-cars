@@ -38,7 +38,7 @@ export function SiteHeader() {
             <span className="text-lg">🚗</span>
           </span>
           <span>
-            Me Gusta <span className="text-primary">Cars</span>
+            Megusta <span className="text-primary">Cars</span>
           </span>
         </Link>
 

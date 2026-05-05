@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { CarCard } from "@/components/fleet/car-card";
-import { mockCars } from "@/lib/mock-data";
+import { useCars } from "@/lib/firebase/use-cars";
 import { useT } from "@/lib/i18n/use-t";
 
 export function FeaturedCars() {
   const { t } = useT();
-  const featured = mockCars.slice(0, 3);
+  const { cars } = useCars();
+  const featured = cars.slice(0, 3);
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">

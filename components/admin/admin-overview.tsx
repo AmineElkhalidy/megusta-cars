@@ -2,17 +2,17 @@
 
 import Link from "next/link";
 import { ClipboardList, Car, DollarSign, ShieldCheck } from "lucide-react";
-import { useBookingStore, useFleetStore, useStoreHydration } from "@/lib/store";
 import { formatCurrency, formatDate } from "@/lib/booking-utils";
 import { StatCard } from "@/components/admin/stat-card";
 import { StatusBadge } from "@/components/bookings/status-badge";
+import { useAllBookings } from "@/lib/firebase/use-bookings";
+import { useCars } from "@/lib/firebase/use-cars";
 
 export function AdminOverview() {
-  const hydrated = useStoreHydration();
-  const bookings = useBookingStore((s) => s.bookings);
-  const cars = useFleetStore((s) => s.cars);
+  const { bookings, loading: bookingsLoading } = useAllBookings();
+  const { cars, loading: carsLoading } = useCars();
 
-  if (!hydrated) {
+  if (bookingsLoading || carsLoading) {
     return (
       <div className="rounded-2xl border border-border bg-card p-8 text-sm text-muted-foreground">
         Loading dashboard…

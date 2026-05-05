@@ -8,7 +8,7 @@ import { QuickBookingWidget } from "@/components/landing/quick-booking-widget";
 import { site, telLink } from "@/lib/site-config";
 import { useT } from "@/lib/i18n/use-t";
 import { formatCurrency } from "@/lib/booking-utils";
-import { mockCars } from "@/lib/mock-data";
+import { useCars } from "@/lib/firebase/use-cars";
 
 type HeroSectionProps = {
   bookingDefaults: QuickBookingDefaults;
@@ -16,8 +16,11 @@ type HeroSectionProps = {
 
 export function HeroSection({ bookingDefaults }: HeroSectionProps) {
   const { t } = useT();
+  const { cars } = useCars();
   /** Lowest price in the fleet — shown on the floating chip over the hero photo. */
-  const lowestPrice = Math.min(...mockCars.map((c) => c.pricePerDay));
+  const lowestPrice = cars.length
+    ? Math.min(...cars.map((c) => c.pricePerDay))
+    : 0;
 
   return (
     <section className="relative overflow-hidden border-b border-border bg-warm-glow">

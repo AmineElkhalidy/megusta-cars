@@ -2,11 +2,28 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
-import { useFleetStore, useStoreHydration } from "@/lib/store";
+import { Plus, Pencil, Trash2, Sparkles, Loader2 } from "lucide-react";
+import { useFleetStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/booking-utils";
-import { CarFormDialog } from "@/components/admin/car-form-dialog";
+import {
+  CarFormDialog,
+  type CarFormSubmitPayload,
+} from "@/components/admin/car-form-dialog";
 import type { Car, CarStatus } from "@/lib/types";
+import { useCars } from "@/lib/firebase/use-cars";
+import { isFirebaseConfigured } from "@/lib/firebase/config";
+import {
+  allocateCarDocumentId,
+  createCar,
+  removeCar as removeCarFirestore,
+  seedCars,
+  setCarStatus as setCarStatusFirestore,
+  updateCar as updateCarFirestore,
+} from "@/lib/firebase/cars";
+import {
+  mergeUploadedCarPhotos,
+  uploadCarImages,
+} from "@/lib/firebase/storage-upload";
 
 const STATUS_TONE: Record<CarStatus, string> = {
   available: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
@@ -17,17 +34,18 @@ const STATUS_TONE: Record<CarStatus, string> = {
 const STATUS_OPTIONS: CarStatus[] = ["available", "rented", "maintenance"];
 
 export function AdminFleet() {
-  const hydrated = useStoreHydration();
-  const cars = useFleetStore((s) => s.cars);
-  const addCar = useFleetStore((s) => s.addCar);
-  const updateCar = useFleetStore((s) => s.updateCar);
-  const removeCar = useFleetStore((s) => s.removeCar);
-  const setStatus = useFleetStore((s) => s.setStatus);
+  const { cars, loading, firestoreEmpty } = useCars();
+  // Local fallback actions (when Firebase is not configured).
+  const addCarLocal = useFleetStore((s) => s.addCar);
+  const updateCarLocal = useFleetStore((s) => s.updateCar);
+  const removeCarLocal = useFleetStore((s) => s.removeCar);
+  const setStatusLocal = useFleetStore((s) => s.setStatus);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Car | null>(null);
+  const [seeding, setSeeding] = useState(false);
 
-  if (!hydrated) {
+  if (loading) {
     return (
       <div className="rounded-2xl border border-border bg-card p-8 text-sm text-muted-foreground">
         Loading fleet…
@@ -44,27 +62,134 @@ export function AdminFleet() {
     setDialogOpen(true);
   }
 
-  function handleSubmit(payload: Omit<Car, "id">) {
-    if (editing) {
-      updateCar(editing.id, payload);
-    } else {
-      addCar(payload);
+  async function handleSubmit({ car, imageFiles }: CarFormSubmitPayload) {
+    try {
+      if (isFirebaseConfigured) {
+        let finalCar = car;
+
+        if (imageFiles.length > 0) {
+          const carId = editing?.id ?? allocateCarDocumentId();
+          const urls = await uploadCarImages(carId, imageFiles);
+          finalCar = mergeUploadedCarPhotos(car, urls, editing);
+
+          if (!editing) {
+            if (!finalCar.imageUrl?.trim()) {
+              window.alert("Upload did not produce a cover image.");
+              return;
+            }
+            await createCar(finalCar, { id: carId });
+            setDialogOpen(false);
+            setEditing(null);
+            return;
+          }
+        }
+
+        if (!finalCar.imageUrl?.trim()) {
+          window.alert("Add a cover image URL or upload at least one photo.");
+          return;
+        }
+
+        if (editing) {
+          await updateCarFirestore(editing.id, finalCar);
+        } else {
+          await createCar(finalCar);
+        }
+      } else {
+        if (imageFiles.length > 0) {
+          window.alert(
+            "Firebase isn’t configured — photo uploads are disabled. Paste an image URL instead, or add credentials to .env.local."
+          );
+          return;
+        }
+        if (!car.imageUrl?.trim()) {
+          window.alert("Add a cover image URL.");
+          return;
+        }
+        if (editing) {
+          updateCarLocal(editing.id, car);
+        } else {
+          addCarLocal(car);
+        }
+      }
+
+      setDialogOpen(false);
+      setEditing(null);
+    } catch (err) {
+      console.error("Save car failed:", err);
+      window.alert(err instanceof Error ? err.message : "Save failed.");
     }
-    setDialogOpen(false);
-    setEditing(null);
   }
 
-  function handleRemove(car: Car) {
-    if (
-      typeof window !== "undefined" &&
-      window.confirm(`Remove ${car.make} ${car.model} from the fleet?`)
-    ) {
-      removeCar(car.id);
+  async function handleRemove(car: Car) {
+    if (typeof window === "undefined") return;
+    if (!window.confirm(`Remove ${car.make} ${car.model} from the fleet?`))
+      return;
+    try {
+      if (isFirebaseConfigured) {
+        await removeCarFirestore(car.id);
+      } else {
+        removeCarLocal(car.id);
+      }
+    } catch (err) {
+      console.error("Remove car failed:", err);
+    }
+  }
+
+  async function handleStatusChange(carId: string, status: CarStatus) {
+    try {
+      if (isFirebaseConfigured) {
+        await setCarStatusFirestore(carId, status);
+      } else {
+        setStatusLocal(carId, status);
+      }
+    } catch (err) {
+      console.error("Update car status failed:", err);
+    }
+  }
+
+  async function handleSeed() {
+    setSeeding(true);
+    try {
+      await seedCars();
+    } catch (err) {
+      console.error("Seed fleet failed:", err);
+      if (typeof window !== "undefined") {
+        window.alert("Seeding failed — check the console for details.");
+      }
+    } finally {
+      setSeeding(false);
     }
   }
 
   return (
     <div className="space-y-5">
+      {firestoreEmpty ? (
+        <div className="flex flex-col gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-5 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-semibold text-foreground">
+              Your Firestore fleet is empty
+            </p>
+            <p className="mt-0.5 text-muted-foreground">
+              You&apos;re seeing demo cars from local mock data. Seed the Firestore
+              collection to go live.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleSeed}
+            disabled={seeding}
+            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-70"
+          >
+            {seeding ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            ) : (
+              <Sparkles className="h-4 w-4" aria-hidden />
+            )}
+            Seed demo fleet
+          </button>
+        </div>
+      ) : null}
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
           {cars.length} {cars.length === 1 ? "car" : "cars"} in the fleet
@@ -126,7 +251,7 @@ export function AdminFleet() {
                   <select
                     value={car.status}
                     onChange={(e) =>
-                      setStatus(car.id, e.target.value as CarStatus)
+                      handleStatusChange(car.id, e.target.value as CarStatus)
                     }
                     className="h-9 rounded-lg border border-border bg-background px-2.5 text-sm text-foreground outline-none ring-primary/30 focus:ring-2"
                   >

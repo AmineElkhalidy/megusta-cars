@@ -7,6 +7,9 @@ import { CheckCircle2, Loader2, Phone, ArrowRight, MessageCircle } from "lucide-
 import { useBookingStore } from "@/lib/store";
 import { telLink, whatsappLink } from "@/lib/site-config";
 import { useT } from "@/lib/i18n/use-t";
+import { isFirebaseConfigured } from "@/lib/firebase/config";
+import { createBooking } from "@/lib/firebase/bookings";
+import { useCurrentUserId } from "@/lib/firebase/auth";
 
 type CheckoutFormProps = {
   carId: string;
@@ -32,6 +35,7 @@ export function CheckoutForm({
   const router = useRouter();
   const { t } = useT();
   const addBooking = useBookingStore((s) => s.addBooking);
+  const { uid } = useCurrentUserId();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingId, setBookingId] = useState<string | null>(null);
@@ -45,26 +49,38 @@ export function CheckoutForm({
     const customerEmail = String(formData.get("email") ?? "");
     const customerPhone = String(formData.get("phone") ?? "");
 
-    try {
-      // TODO: when Firebase env vars are in place:
-      // await addDoc(collection(db, "bookings"), { ...payload });
-      await new Promise((resolve) => setTimeout(resolve, 900));
+    const basePayload = {
+      carId,
+      carLabel,
+      carImage,
+      customerName,
+      customerEmail,
+      customerPhone,
+      pickupLocation: pickup,
+      dropoffLocation: dropoff,
+      startDate: from,
+      endDate: to,
+      totalAmount: total,
+      status: "pending" as const,
+    };
 
-      const newBooking = addBooking({
-        carId,
-        carLabel,
-        carImage,
-        customerName,
-        customerEmail,
-        customerPhone,
-        pickupLocation: pickup,
-        dropoffLocation: dropoff,
-        startDate: from,
-        endDate: to,
-        totalAmount: total,
-        status: "pending",
-      });
-      setBookingId(newBooking.id);
+    try {
+      if (isFirebaseConfigured) {
+        const effectiveUid = uid ?? "anonymous";
+        const id = await createBooking({
+          ...basePayload,
+          userId: effectiveUid,
+        });
+        setBookingId(id);
+      } else {
+        // Dev fallback — persist locally so the dashboard still shows something.
+        await new Promise((resolve) => setTimeout(resolve, 600));
+        const newBooking = addBooking({
+          ...basePayload,
+          userId: uid ?? "local",
+        });
+        setBookingId(newBooking.id);
+      }
     } catch (error) {
       console.error("Error creating booking:", error);
       alert(t.success.error);

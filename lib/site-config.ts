@@ -4,7 +4,7 @@
  */
 
 export const site = {
-  name: "Me Gusta Cars",
+  name: "Megusta Cars",
   tagline: "Rent a car in three easy steps.",
   description:
     "Friendly car rental. Simple prices. No credit card needed — just pay when you pick up.",

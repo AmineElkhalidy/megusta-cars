@@ -3,18 +3,33 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CalendarRange, MapPin, Ticket, Trash2 } from "lucide-react";
-import { useBookingStore, useStoreHydration } from "@/lib/store";
+import { useBookingStore } from "@/lib/store";
 import { formatCurrency, formatDate } from "@/lib/booking-utils";
 import { StatusBadge } from "@/components/bookings/status-badge";
 import { useT } from "@/lib/i18n/use-t";
+import { useUserBookings } from "@/lib/firebase/use-bookings";
+import { isFirebaseConfigured } from "@/lib/firebase/config";
+import { cancelBooking as cancelBookingFirestore } from "@/lib/firebase/bookings";
+import type { Booking } from "@/lib/types";
 
 export function BookingsList() {
   const { t } = useT();
-  const hydrated = useStoreHydration();
-  const bookings = useBookingStore((s) => s.bookings);
-  const cancelBooking = useBookingStore((s) => s.cancelBooking);
+  const { bookings, loading } = useUserBookings();
+  const cancelBookingLocal = useBookingStore((s) => s.cancelBooking);
 
-  if (!hydrated) {
+  async function handleCancel(id: string) {
+    if (isFirebaseConfigured) {
+      try {
+        await cancelBookingFirestore(id);
+      } catch (err) {
+        console.error("Cancel booking failed:", err);
+      }
+      return;
+    }
+    cancelBookingLocal(id);
+  }
+
+  if (loading) {
     return (
       <div className="rounded-2xl border border-border bg-card p-12 text-center text-sm text-muted-foreground">
         {t.dashboard.loading}
@@ -49,7 +64,7 @@ export function BookingsList() {
               <BookingRow
                 key={booking.id}
                 booking={booking}
-                onCancel={() => cancelBooking(booking.id)}
+                onCancel={() => handleCancel(booking.id)}
               />
             ))}
           </ul>
@@ -73,7 +88,7 @@ export function BookingsList() {
 }
 
 type BookingRowProps = {
-  booking: ReturnType<typeof useBookingStore.getState>["bookings"][number];
+  booking: Booking;
   onCancel?: () => void;
 };
 

@@ -2,28 +2,60 @@
 
 import Link from "next/link";
 import { ArrowLeft, Check } from "lucide-react";
-import type { Car } from "@/lib/types";
 import { ImageGallery } from "@/components/cars/image-gallery";
 import { CarSpecs } from "@/components/cars/car-specs";
 import { InlineBookingForm } from "@/components/cars/inline-booking-form";
 import { StepIndicator } from "@/components/shared/step-indicator";
 import { useT } from "@/lib/i18n/use-t";
+import { useCar } from "@/lib/firebase/use-cars";
 
 type CarDetailsContentProps = {
-  car: Car;
+  carId: string;
   initialPickup?: string;
   initialFrom?: string;
   initialTo?: string;
 };
 
-/** Client wrapper so the entire details page can read translations from the store. */
+/** Client wrapper so the entire details page can read translations + live Firestore. */
 export function CarDetailsContent({
-  car,
+  carId,
   initialPickup,
   initialFrom,
   initialTo,
 }: CarDetailsContentProps) {
   const { t } = useT();
+  const { car, loading } = useCar(carId);
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="h-6 w-32 animate-pulse rounded-full bg-muted" />
+        <div className="mt-10 grid gap-10 lg:grid-cols-12">
+          <div className="h-[420px] animate-pulse rounded-3xl bg-muted lg:col-span-7" />
+          <div className="h-[420px] animate-pulse rounded-3xl bg-muted lg:col-span-5" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!car) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-20 text-center sm:px-6 lg:px-8">
+        <h1 className="text-2xl font-semibold text-foreground">
+          {t.carDetails.back}
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          This car is no longer available.
+        </p>
+        <Link
+          href="/fleet"
+          className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground"
+        >
+          {t.dashboard.emptyCta}
+        </Link>
+      </div>
+    );
+  }
   const galleryImages = car.images?.length ? car.images : [car.imageUrl];
   const typeLabel = t.cars.options.type[car.type] ?? car.type;
   const steps = [

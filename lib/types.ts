@@ -30,6 +30,8 @@ export type BookingStatus =
 
 export interface Booking {
   id: string;
+  /** Anonymous (or signed-in) user id that owns this booking — used by the user dashboard. */
+  userId: string;
   carId: string;
   carLabel: string; // denormalized for fast display
   carImage: string; // denormalized

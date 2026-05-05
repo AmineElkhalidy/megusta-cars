@@ -3,10 +3,13 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { Check, X, ClipboardList, CheckCircle2 } from "lucide-react";
-import { useBookingStore, useStoreHydration } from "@/lib/store";
+import { useBookingStore } from "@/lib/store";
 import { formatCurrency, formatDate } from "@/lib/booking-utils";
 import { StatusBadge } from "@/components/bookings/status-badge";
 import type { BookingStatus } from "@/lib/types";
+import { useAllBookings } from "@/lib/firebase/use-bookings";
+import { isFirebaseConfigured } from "@/lib/firebase/config";
+import { updateBookingStatus as updateStatusFirestore } from "@/lib/firebase/bookings";
 
 const STATUS_FILTERS: { id: BookingStatus | "all"; label: string }[] = [
   { id: "all", label: "All" },
@@ -18,17 +21,28 @@ const STATUS_FILTERS: { id: BookingStatus | "all"; label: string }[] = [
 ];
 
 export function AdminBookings() {
-  const hydrated = useStoreHydration();
-  const bookings = useBookingStore((s) => s.bookings);
-  const updateStatus = useBookingStore((s) => s.updateBookingStatus);
+  const { bookings, loading } = useAllBookings();
+  const updateStatusLocal = useBookingStore((s) => s.updateBookingStatus);
   const [filter, setFilter] = useState<BookingStatus | "all">("all");
+
+  async function updateStatus(id: string, status: BookingStatus) {
+    if (isFirebaseConfigured) {
+      try {
+        await updateStatusFirestore(id, status);
+      } catch (err) {
+        console.error("Update booking status failed:", err);
+      }
+      return;
+    }
+    updateStatusLocal(id, status);
+  }
 
   const filtered = useMemo(() => {
     if (filter === "all") return bookings;
     return bookings.filter((b) => b.status === filter);
   }, [bookings, filter]);
 
-  if (!hydrated) {
+  if (loading) {
     return (
       <div className="rounded-2xl border border-border bg-card p-8 text-sm text-muted-foreground">
         Loading bookings…
