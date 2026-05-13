@@ -158,6 +158,12 @@ export type Dictionary = {
   language: {
     choose: string;
   };
+  theme: {
+    choose: string;
+    light: string;
+    dark: string;
+    system: string;
+  };
 };
 
 export const translations: Record<Locale, Dictionary> = {
@@ -341,6 +347,12 @@ export const translations: Record<Locale, Dictionary> = {
       cancelled: "Cancelled",
     },
     language: { choose: "Choose language" },
+    theme: {
+      choose: "Appearance",
+      light: "Light",
+      dark: "Dark",
+      system: "System",
+    },
   },
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -523,6 +535,12 @@ export const translations: Record<Locale, Dictionary> = {
       cancelled: "Annulée",
     },
     language: { choose: "Choisir la langue" },
+    theme: {
+      choose: "Affichage",
+      light: "Clair",
+      dark: "Sombre",
+      system: "Système",
+    },
   },
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -705,5 +723,11 @@ export const translations: Record<Locale, Dictionary> = {
       cancelled: "ملغية",
     },
     language: { choose: "اختار اللغة" },
+    theme: {
+      choose: "المظهر",
+      light: "فاتح",
+      dark: "داكن",
+      system: "النظام",
+    },
   },
 };

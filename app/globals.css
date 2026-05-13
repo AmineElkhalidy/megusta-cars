@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Tailwind `dark:*` follows `next-themes` (`.dark` on `<html>`), not only OS preference. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* =============================================================================
    Design tokens — a refined, editorial palette.
    Cream canvas + deep ink + signature flame orange + warm amber accent.
@@ -34,31 +37,29 @@
   --ink-muted: #b6a896;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0d0907;
-    --background-soft: #150f0a;
-    --foreground: #f8efe2;
-    --foreground-soft: #e6dac7;
-    --muted: #1a120b;
-    --muted-foreground: #9d8c79;
-    --card: #160f09;
-    --card-elevated: #1c130c;
-    --border: rgba(245, 233, 216, 0.08);
-    --border-strong: rgba(245, 233, 216, 0.16);
-    --ring: rgba(251, 111, 61, 0.45);
+.dark {
+  --background: #0d0907;
+  --background-soft: #150f0a;
+  --foreground: #f8efe2;
+  --foreground-soft: #e6dac7;
+  --muted: #1a120b;
+  --muted-foreground: #9d8c79;
+  --card: #160f09;
+  --card-elevated: #1c130c;
+  --border: rgba(245, 233, 216, 0.08);
+  --border-strong: rgba(245, 233, 216, 0.16);
+  --ring: rgba(251, 111, 61, 0.45);
 
-    --primary: #fb6f3d;
-    --primary-soft: #fb923c;
-    --primary-foreground: #14100c;
-    --accent: #fbbf24;
-    --accent-soft: #fcd34d;
+  --primary: #fb6f3d;
+  --primary-soft: #fb923c;
+  --primary-foreground: #14100c;
+  --accent: #fbbf24;
+  --accent-soft: #fcd34d;
 
-    --ink: #050302;
-    --ink-soft: #0c0805;
-    --ink-foreground: #fbf7f1;
-    --ink-muted: #847564;
-  }
+  --ink: #050302;
+  --ink-soft: #0c0805;
+  --ink-foreground: #fbf7f1;
+  --ink-muted: #847564;
 }
 
 @theme inline {

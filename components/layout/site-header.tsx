@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { site, telLink } from "@/lib/site-config";
 import { useT } from "@/lib/i18n/use-t";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { ThemeSwitcher } from "@/components/layout/theme-switcher";
 
 /**
  * Sticky header with a scroll-aware backdrop:
@@ -109,6 +110,7 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
+          <ThemeSwitcher />
 
           <a
             href={telLink()}

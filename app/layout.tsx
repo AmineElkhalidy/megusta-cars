@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { FloatingHelp } from "@/components/layout/floating-help";
 import { LocaleSync } from "@/components/layout/locale-sync";
+import { ThemeProvider } from "@/components/theme-provider";
 import { site } from "@/lib/site-config";
 import "./globals.css";
 
@@ -79,16 +80,18 @@ export default function RootLayout({
         />
       </head>
       <body className="relative flex min-h-full flex-col bg-background text-foreground">
-        {/* Soft ambient mesh sitting behind every page — keeps composition warm without overpowering content. */}
-        <div
-          aria-hidden
-          className="pointer-events-none fixed inset-0 -z-10 bg-mesh-warm opacity-70"
-        />
-        <LocaleSync />
-        <SiteHeader />
-        <main className="flex-1">{children}</main>
-        <SiteFooter />
-        <FloatingHelp />
+        <ThemeProvider>
+          {/* Soft ambient mesh sitting behind every page — keeps composition warm without overpowering content. */}
+          <div
+            aria-hidden
+            className="pointer-events-none fixed inset-0 -z-10 bg-mesh-warm opacity-70"
+          />
+          <LocaleSync />
+          <SiteHeader />
+          <main className="flex-1">{children}</main>
+          <SiteFooter />
+          <FloatingHelp />
+        </ThemeProvider>
       </body>
     </html>
   );
